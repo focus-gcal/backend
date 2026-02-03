@@ -6,7 +6,7 @@ This guide explains how to set up a local development environment, install depen
 From the project root, create a virtual environment:
 
 ```bash
-python3 -m venv .venv
+python -m venv .venv
 source .venv/bin/activate
 ```
 ## 📦 Install Dependencies
