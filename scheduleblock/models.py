@@ -13,8 +13,6 @@ class ScheduledBlock(models.Model):
         related_name="blocks",
     )
 
-    label = models.CharField(max_length=100, blank=True)
-    is_busy = models.BooleanField(default=True) 
 
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()

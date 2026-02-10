@@ -1,4 +1,5 @@
 from django.db import models
+from focus_gcal.enums import StatusChoices
 
 from focus_gcal import settings
 import schedules
@@ -9,19 +10,14 @@ import schedules.models
 class Task(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="tasks")
 
-    STATUS_CHOICES = [
-        ("todo", "To Do"),
-        ("in_progress", "In Progress"),
-        ("completed", "Completed"),
-        ("blocked", "Blocked")
-    ]
+
     title = models.CharField(max_length=200)
     description = models.TextField(blank = True)
     duration = models.PositiveIntegerField()
     priority = models.PositiveSmallIntegerField(default = 3)
     deadline = models.DateTimeField(null = True, blank = True)
     is_hard_deadline = models.BooleanField(default = False)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="todo")
+    status = models.CharField(max_length=20, choices=StatusChoices.choices, default=StatusChoices.TODO)
     stardates = models.DateTimeField(null = True, blank = True)
     minchunk = models.PositiveIntegerField(default = 3)
     max_duration_chunk = models.PositiveIntegerField(null= True, blank = True)
