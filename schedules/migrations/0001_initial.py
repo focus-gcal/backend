@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -15,14 +14,42 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Schedule',
+            name="Schedule",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=100)),
-                ('day_of_week', models.PositiveSmallIntegerField(choices=[(0, 'Mon'), (1, 'Tue'), (2, 'Wed'), (3, 'Thu'), (4, 'Fri'), (5, 'Sat'), (6, 'Sun')])),
-                ('start_time', models.TimeField()),
-                ('end_time', models.TimeField()),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='schedules', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=100)),
+                (
+                    "day_of_week",
+                    models.PositiveSmallIntegerField(
+                        choices=[
+                            (0, "Mon"),
+                            (1, "Tue"),
+                            (2, "Wed"),
+                            (3, "Thu"),
+                            (4, "Fri"),
+                            (5, "Sat"),
+                            (6, "Sun"),
+                        ]
+                    ),
+                ),
+                ("start_time", models.TimeField()),
+                ("end_time", models.TimeField()),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="schedules",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
     ]

@@ -6,31 +6,69 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('schedules', '0001_initial'),
+        ("schedules", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Task',
+            name="Task",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(max_length=200)),
-                ('description', models.TextField(blank=True)),
-                ('duration', models.PositiveIntegerField()),
-                ('priority', models.PositiveSmallIntegerField(default=3)),
-                ('deadline', models.DateTimeField(blank=True, null=True)),
-                ('is_hard_deadline', models.BooleanField(default=False)),
-                ('status', models.CharField(choices=[('todo', 'To Do'), ('in_progress', 'In Progress'), ('completed', 'Completed'), ('blocked', 'Blocked')], default='todo', max_length=20)),
-                ('stardates', models.DateTimeField(blank=True, null=True)),
-                ('minchunk', models.PositiveIntegerField(default=3)),
-                ('max_duration_chunk', models.PositiveIntegerField(blank=True, null=True)),
-                ('schedule', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='tasks', to='schedules.schedule')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='tasks', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("title", models.CharField(max_length=200)),
+                ("description", models.TextField(blank=True)),
+                ("duration", models.PositiveIntegerField()),
+                ("priority", models.PositiveSmallIntegerField(default=3)),
+                ("deadline", models.DateTimeField(blank=True, null=True)),
+                ("is_hard_deadline", models.BooleanField(default=False)),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("todo", "To Do"),
+                            ("in_progress", "In Progress"),
+                            ("completed", "Completed"),
+                            ("blocked", "Blocked"),
+                        ],
+                        default="todo",
+                        max_length=20,
+                    ),
+                ),
+                ("stardates", models.DateTimeField(blank=True, null=True)),
+                ("minchunk", models.PositiveIntegerField(default=3)),
+                (
+                    "max_duration_chunk",
+                    models.PositiveIntegerField(blank=True, null=True),
+                ),
+                (
+                    "schedule",
+                    models.ForeignKey(
+                        blank=True,
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="tasks",
+                        to="schedules.schedule",
+                    ),
+                ),
+                (
+                    "user",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="tasks",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
     ]

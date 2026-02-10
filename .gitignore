@@ -4,10 +4,10 @@ __pycache__/
 
 # Virtual environments
 venv/
+.venv/
 .env/
 
 # Django
-db.sqlite3
 *.log
 
 # OS

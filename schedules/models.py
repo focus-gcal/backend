@@ -1,6 +1,6 @@
-from django.db import models
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.db import models
 
 
 class DayOfWeek(models.IntegerChoices):
@@ -12,6 +12,7 @@ class DayOfWeek(models.IntegerChoices):
     SATURDAY = 5, "Sat"
     SUNDAY = 6, "Sun"
 
+
 class Schedule(models.Model):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -21,12 +22,11 @@ class Schedule(models.Model):
 
     name = models.CharField(max_length=100)
 
-
     day_of_week = models.PositiveSmallIntegerField(choices=DayOfWeek.choices)
 
     start_time = models.TimeField()
     end_time = models.TimeField()
-    
+
     def clean(self):
         if self.end_time <= self.start_time:
             raise ValidationError("End time must be after start time.")

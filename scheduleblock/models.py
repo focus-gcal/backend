@@ -1,9 +1,12 @@
 from django.conf import settings
-from django.db import models
 from django.core.exceptions import ValidationError
+from django.db import models
+
 
 class ScheduledBlock(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="blocks")
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="blocks"
+    )
 
     task = models.ForeignKey(
         "tasks.Task",
@@ -12,7 +15,6 @@ class ScheduledBlock(models.Model):
         blank=True,
         related_name="blocks",
     )
-
 
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
@@ -27,7 +29,7 @@ class ScheduledBlock(models.Model):
         # When updating an existing block, exclude itself
         if self.pk:
             qs = qs.exclude(pk=self.pk)
-        ##lt means djano will look for less than and gt means greater than, searches for overlapping blocks 
+        # lt means django will look for less than and gt means greater than, searches for overlapping blocks
         overlaps = qs.filter(
             start_time__lt=self.end_time,
             end_time__gt=self.start_time,
