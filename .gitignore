@@ -1,6 +1,7 @@
 # Python
 __pycache__/
 *.pyc
+.vscode/
 
 # Virtual environments
 venv/
@@ -12,3 +13,4 @@ venv/
 
 # OS
 .DS_Store
+db.sqlite3
