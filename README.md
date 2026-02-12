@@ -21,3 +21,22 @@ Start the Django server:
 ```bash
 python manage.py runserver
 ```
+
+## 3️⃣ Start the Database Container
+
+From the project root (where `docker-compose.yml` is located), run:
+
+```bash
+docker compose build
+docker compose up
+```
+
+## 5️⃣ Run Django Migrations
+
+Once the database is running:
+
+```bash
+python manage.py migrate
+```
+
+This creates Django tables inside PostgreSQL.

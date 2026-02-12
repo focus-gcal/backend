@@ -1,0 +1,9 @@
+.gitignore
+.venv/
+venv/
+.vscode/
+__pycache__/
+*.pyc
+*.log
+.DS_Store
+db.sqlite3
