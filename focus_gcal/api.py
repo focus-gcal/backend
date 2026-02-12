@@ -4,5 +4,5 @@ api = NinjaAPI()
 
 
 @api.get("/ping")
-def hello(request):
+def ping(request):
     return "pong"
