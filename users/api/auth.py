@@ -1,5 +1,7 @@
 from ninja import Router, Schema
 from django.contrib.auth import get_user_model
+from users.auth.jwt import create_access_token
+from django.contrib.auth import authenticate
 
 User = get_user_model()
 router = Router()
@@ -17,6 +19,25 @@ class RegisterOut(Schema):
     username : str | None = None
     email : str | None = None
     error: str | None = None
+
+class LoginIn(Schema):
+    username: str
+    password: str
+
+class TokenOut(Schema):
+    ok: bool
+    token: str | None = None
+    token_type: str | None = None
+    error: str | None = None
+    
+@router.post("/login", response=TokenOut)
+def token(request, data: LoginIn):
+    user = authenticate(LoginIn, username=data.username, password=data.password)
+    if user is None:
+        return TokenOut(ok=False, error="Invalid credentials.")
+    
+    token = create_access_token(user.id)
+    return TokenOut(ok=True, token=token, token_type="Bearer")
 
 
 

@@ -19,21 +19,15 @@ from django.urls import path
 from ninja import NinjaAPI
 
 from users.api.auth import router as auth_router
+from users.api.me import router as me_router
+
 
 api = NinjaAPI()
 
 
 api.add_router("/auth", auth_router)
-
-from .api import api
-
+api.add_router("/me", me_router)
 urlpatterns = [
-<<<<<<< Updated upstream
-    path("", api.urls),
-    path("admin/", admin.site.urls),
-]
-=======
     path("admin/", admin.site.urls),
     path("api/", api.urls),
 ]
->>>>>>> Stashed changes
