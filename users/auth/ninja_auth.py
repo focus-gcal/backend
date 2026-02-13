@@ -1,8 +1,10 @@
-from ninja.security import HttpBearer
 from django.contrib.auth import get_user_model
+from ninja.security import HttpBearer
+
 from users.auth.jwt import decode_access_token
 
 User = get_user_model()
+
 
 class JWTAuth(HttpBearer):
     def authenticate(self, request, token):
@@ -11,9 +13,6 @@ class JWTAuth(HttpBearer):
             return None
         try:
             user = User.objects.get(id=user_id)
-            request.user = user
-            return request.user
+            return user
         except User.DoesNotExist:
-            request.user = None
             return None
-        
