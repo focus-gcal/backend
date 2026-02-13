@@ -1,13 +1,13 @@
+from api import router
 from django.contrib.auth import authenticate, get_user_model
 from ninja import Router
 
 from users.auth.jwt import create_access_token
-from users.models import LoginIn, RegisterIn, RegisterOut, TokenOut
+
+from ..schemas.auth import LoginIn, RegisterIn, RegisterOut, TokenOut
+
 
 User = get_user_model()
-router = Router()
-
-
 @router.post("/login", response=TokenOut)
 def token(request, data: LoginIn):
     user = authenticate(request, username=data.username, password=data.password)
