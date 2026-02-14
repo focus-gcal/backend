@@ -6,9 +6,12 @@ click==8.3.1
 distlib==0.4.0
 Django==6.0.1
 django-ninja==1.5.3
+dnspython==2.8.0
+email-validator==2.3.0
 filelock==3.20.3
 flake8==7.3.0
 identify==2.6.16
+idna==3.11
 isort==7.0.0
 mccabe==0.7.0
 mypy_extensions==1.1.0
@@ -23,6 +26,7 @@ pycodestyle==2.14.0
 pydantic==2.12.5
 pydantic_core==2.41.5
 pyflakes==3.4.0
+PyJWT==2.11.0
 python-dotenv==1.2.1
 pytokens==0.4.1
 PyYAML==6.0.3
