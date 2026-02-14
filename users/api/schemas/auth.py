@@ -22,7 +22,7 @@ class RegisterIn(Schema):
         v = str(v).strip().lower()
         if not v:
             raise ValueError("email cannot be blank")
-        return EmailStr(v)
+        return v
 
 
 class RegisterOut(Schema):
