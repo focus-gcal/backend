@@ -4,7 +4,7 @@ from users.api import api as users_api
 
 api = NinjaAPI()
 
-api.register_router("/users/", users_api.router)
+api.add_router("/users/", users_api.router)
 
 
 @api.get("/ping")
