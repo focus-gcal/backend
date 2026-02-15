@@ -1,5 +1,4 @@
 from ninja import NinjaAPI
-
 from users.api import api as users_api
 
 api = NinjaAPI()

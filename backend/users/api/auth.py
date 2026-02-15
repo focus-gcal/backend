@@ -1,7 +1,6 @@
 from django.contrib.auth import authenticate, get_user_model
 from django.db.models import Q
 from ninja import Router
-
 from users.auth.jwt import create_access_token
 
 from .schemas.auth import LoginIn, RegisterIn, RegisterOut, TokenOut
