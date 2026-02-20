@@ -1,26 +1,13 @@
-import { useEffect, useState } from "react"
-
-import { sendToBackground } from "@plasmohq/messaging"
+import { AuthState } from "types/user"
 
 import { Dashboard, Loading, Login } from "~components"
-import { AuthState, type User } from "~types/user"
 
 import "./popup.css"
 
-function IndexPopup() {
-  const [authState, setAuthState] = useState<AuthState>(AuthState.LOADING)
+import { AuthProvider, useAuth } from "context/auth"
 
-  useEffect(() => {
-    sendToBackground({ name: "validateAuth" })
-      .then((res) => {
-        console.log(res)
-        setAuthState(res.valid ? AuthState.AUTHENTICATED : AuthState.UNAUTHENTICATED)
-      })
-      .catch((err) => {
-        console.log(err)
-        setAuthState(AuthState.LOADING)
-      })
-  }, [])
+function PopupContent() {
+  const { authState } = useAuth()
 
   return (
     <div
@@ -39,4 +26,10 @@ function IndexPopup() {
   )
 }
 
-export default IndexPopup
+export default function IndexPopup() {
+  return (
+    <AuthProvider>
+      <PopupContent />
+    </AuthProvider>
+  )
+}

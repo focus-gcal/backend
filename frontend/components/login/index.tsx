@@ -1,6 +1,8 @@
 import { Button, ConfigProvider } from "antd"
 import logoUrl from "raw:~assets/logo.png"
 
+import SignInButton from "./signInButton"
+
 function Login() {
   return (
     <ConfigProvider
@@ -20,9 +22,7 @@ function Login() {
           top: 25
         }}>
         <img src={logoUrl} alt="Logo" style={{ width: 200, height: "auto" }} />
-        <Button type="primary" size="large" onClick={() => {}}>
-          Sign in
-        </Button>
+        <SignInButton style={{ position: "relative", bottom: 10 }} />
       </div>
     </ConfigProvider>
   )

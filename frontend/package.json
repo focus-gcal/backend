@@ -5,8 +5,8 @@
   "description": "focus",
   "author": "noel",
   "scripts": {
-    "dev": "plasmo dev",
-    "build": "plasmo build",
+    "dev": "plasmo dev --env=../env/.env",
+    "build": "plasmo build --env=../env/.env",
     "package": "plasmo package",
     "format": "prettier --write ."
   },
@@ -28,6 +28,10 @@
     "typescript": "5.3.3"
   },
   "manifest": {
+    "key": "$CRX_PUBLIC_KEY",
+    "permissions": [
+      "identity"
+    ],
     "host_permissions": [
       "https://*/*"
     ]
