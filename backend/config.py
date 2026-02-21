@@ -16,3 +16,15 @@ DB = {
     "HOST": os.environ.get("DB_HOST", "localhost"),
     "PORT": os.environ.get("DB_PORT", "5432"),
 }
+
+REDIS = {
+    "URL": f"redis://{os.environ.get('REDIS_HOST', 'localhost')}:{os.environ.get('REDIS_PORT', '6379')}",
+    "HOST": os.environ.get("REDIS_HOST", "localhost"),
+    "PORT": os.environ.get("REDIS_PORT", "6379"),
+}
+
+OAUTH = {
+    "CLIENT_ID": os.environ["OAUTH_CLIENT_ID"],
+    "CLIENT_SECRET": os.environ["OAUTH_CLIENT_SECRET"],
+    "REDIRECT_URI": os.environ["OAUTH_REDIRECT_URI"],
+}
