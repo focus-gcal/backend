@@ -10,9 +10,26 @@ function generateWebAppURL(redirectURI: string, state: string) {
     "scope",
     "openid email profile https://www.googleapis.com/auth/calendar"
   )
-  url.searchParams.set("prompt", "consent")
   url.searchParams.set("state", state)
   return url.toString()
 }
 
-export { generateWebAppURL }
+function extractResponse(response: string, state: any) {
+
+    if (!response) { throw new Error("No response from Google") }
+
+    const redirectURL = new URL(response)
+    const oauthError = redirectURL.searchParams.get("error")
+    if (oauthError) { throw new Error(`OAuth error: ${oauthError}`) }
+    
+    const code = redirectURL.searchParams.get("code")
+    const returned_state = redirectURL.searchParams.get("state")
+
+    if (!code) { throw new Error("No code from Google") }
+    if (!returned_state) { throw new Error("No state from Google") }
+    if (state !== returned_state) { throw new Error("State mismatch") }
+
+    return { code, state }
+}
+
+export { generateWebAppURL, extractResponse }

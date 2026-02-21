@@ -1,9 +1,9 @@
 from ninja import NinjaAPI
-from users.api import api as users_api
+from users.api import api as auth_api
 
 api = NinjaAPI()
 
-api.add_router("/users/", users_api.router)
+api.add_router("/auth/", auth_api.router)
 
 
 @api.get("/ping")

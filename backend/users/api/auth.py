@@ -1,41 +1,52 @@
-from django.contrib.auth import authenticate, get_user_model
-from django.db.models import Q
+from django.contrib.auth import get_user_model
+from django.core.cache import cache
 from ninja import Router
+from users.auth.google import GoogleAuthService
 from users.auth.jwt import create_access_token
+from users.repository import UserRepository
 
-from .schemas.auth import LoginIn, RegisterIn, RegisterOut, TokenOut
+from .schemas.auth import (
+    OAuthStartError,
+    OAuthStartIn,
+    OAuthStartOut,
+    StateIn,
+    StateOut,
+)
 
 User = get_user_model()
 
 router = Router()
 
 
-@router.post("/login", response={200: TokenOut, 401: TokenOut})
-def token(request, data: LoginIn):
-    user = authenticate(request, username=data.username, password=data.password)
-    if user is None:
-        return 401, TokenOut(ok=False, error="Invalid credentials.")
-
-    token = create_access_token(user.id)
-    return 200, TokenOut(ok=True, token=token, token_type="Bearer")
-
-
-@router.post("/register", response={200: RegisterOut, 400: RegisterOut})
-def register(request, data: RegisterIn):
-    username = data.username
-    email = data.email
-    # check if account already exists with the same username or email
-    if User.objects.filter(Q(username=username) | Q(email=email)).exists():
-        return 400, RegisterOut(ok=False, error="Username or email already exists.")
-    try:
-        user = User.objects.create_user(
-            username=username,
-            email=email,
-            password=data.password,
-            max_duration_chunk=data.max_duration_chunk or 60,
+@router.post("/google/callback", response={200: OAuthStartOut, 400: OAuthStartError})
+def google_callback(request, data: OAuthStartIn):
+    code = data.code
+    state = data.state
+    redis_key = f"google_state_{state}"
+    if not cache.get(redis_key):
+        return 400, OAuthStartError(ok=False, error="State not found")
+    cache.delete(redis_key)
+    credentials, error = GoogleAuthService.exchange_code_for_token(code)
+    if credentials is None:
+        return 400, OAuthStartError(
+            ok=False, error=error if error else "Failed to exchange code for token"
         )
-    except Exception as e:
-        return 400, RegisterOut(ok=False, error=str(e))
-    return 200, RegisterOut(
-        ok=True, id=user.id, username=user.username, email=user.email
-    )
+    user_info = GoogleAuthService.get_user_info(credentials.id_token)
+    if user_info is None:
+        return 400, OAuthStartError(
+            ok=False, error="Failed to get user info from Google"
+        )
+    user = UserRepository.get_or_create_user_from_google(user_info, credentials)
+    GoogleAuthService.store_access_token(user.id, credentials)
+    jwt, expires_at = create_access_token(user.id)
+    return 200, OAuthStartOut(ok=True, jwt_token=jwt, expiry_date=expires_at)
+
+
+@router.post("/google/start", response={200: StateOut, 400: StateOut})
+def google_start(request, data: StateIn):
+    state = data.state
+    created = cache.add(f"google_state_{state}", True, timeout=600)
+    if created:
+        return 200, StateOut(ok=True, state=state)
+    else:
+        return 400, StateOut(ok=False, state=state, error="State already used")

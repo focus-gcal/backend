@@ -14,6 +14,14 @@ services:
       interval: 20s
       timeout: 3s
       retries: 10
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    restart: unless-stopped
+    env_file:
+      - ./env/.env
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
 
 volumes:
   pgdata:

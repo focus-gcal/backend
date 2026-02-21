@@ -1,7 +1,7 @@
 import { type PlasmoMessaging } from "@plasmohq/messaging"
 import { Storage } from "@plasmohq/storage"
 
-import { generateWebAppURL } from "~utils/google"
+import { extractResponse, generateWebAppURL } from "~utils/google"
 
 const storage = new Storage({ area: "local" })
 const handler: PlasmoMessaging.MessageHandler = async (req, res) => {
@@ -18,6 +18,9 @@ const handler: PlasmoMessaging.MessageHandler = async (req, res) => {
       url: AuthURL,
       interactive: true
     })
+
+    const { code, state:returned_state } = extractResponse(response, state)
+
     console.log(response)
     res.send({ valid: true, isInProgress: false })
   } catch (error) {

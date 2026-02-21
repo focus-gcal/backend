@@ -8,13 +8,14 @@ ALGO = "HS256"
 
 def create_access_token(user_id: int):
     now = datetime.now(timezone.utc)
+    expires_at = now + timedelta(days=7)
     payload = {
         "user_id": user_id,
         "iat": now,
-        "exp": now + timedelta(days=7),  # Token expires in 7 days
+        "exp": expires_at,
     }
     token = jwt.encode(payload, settings.SECRET_KEY, algorithm=ALGO)
-    return token
+    return token, expires_at
 
 
 def decode_access_token(token: str):

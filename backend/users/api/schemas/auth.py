@@ -1,53 +1,43 @@
+from datetime import datetime
+from typing import Optional
+
 from ninja import Schema
-from pydantic import EmailStr, field_validator
+from pydantic import field_validator
 
 
-class RegisterIn(Schema):
-    username: str
-    email: EmailStr
-    password: str
-    max_duration_chunk: int | None = None
+class StateIn(Schema):
+    state: str
 
-    @field_validator("username")
-    @classmethod
-    def clean_username(cls, v: str):
-        v = v.strip().lower()
+    @field_validator("state")
+    def validate_state(cls, v):
         if not v:
-            raise ValueError("username cannot be blank")
-        return v
-
-    @field_validator("email")
-    @classmethod
-    def clean_email(cls, v: EmailStr):
-        v = str(v).strip().lower()
-        if not v:
-            raise ValueError("email cannot be blank")
+            raise ValueError("State is required")
         return v
 
 
-class RegisterOut(Schema):
+class StateOut(Schema):
     ok: bool
-    id: int | None = None
-    username: str | None = None
-    email: EmailStr | None = None
-    error: str | None = None
+    state: str
+    error: Optional[str] = None
 
 
-class LoginIn(Schema):
-    username: str
-    password: str
+class OAuthStartIn(Schema):
+    code: str
+    state: str
 
-    @field_validator("username")
-    @classmethod
-    def clean_username(cls, v: str):
-        v = v.strip().lower()
-        if not v:
-            raise ValueError("username cannot be blank")
+    @field_validator("code", "state")
+    def validate_code_and_state(cls, v):
+        if not v["code"] or not v["state"]:
+            raise ValueError("Code and state are required")
         return v
 
 
-class TokenOut(Schema):
+class OAuthStartOut(Schema):
+    jwt_token: str
+    expiry_date: datetime
     ok: bool
-    token: str | None = None
-    token_type: str = "Bearer"
-    error: str | None = None
+
+
+class OAuthStartError(Schema):
+    ok: bool
+    error: str
