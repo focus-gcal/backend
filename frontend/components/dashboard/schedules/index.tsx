@@ -1,14 +1,12 @@
 import { useState } from "react"
 import { MOCK_SCHEDULES, getMockScheduleDetail } from "./fixtures/mock"
 import type { ScheduleOut, ScheduleListOut } from "./types/schedule"
-import { DAY_LABELS } from "./utils"
+import { DAY_LABELS } from "~/utils"
 import { ScheduleEditForm } from "./EditForm"
-import { EmptyState } from "./EmptyState"
+import { EmptyState } from "../common/EmptyState"
 import { DetailView } from "./DetailView"
 import { ScheduleListItem } from "./ScheduleListItem"
-import { ScheduleScroll } from "./ScheduleScroll"
-import { ScheduleScreenLayout } from "./ScheduleScreenLayout"
-import { CreateButton } from "./CreateButton"
+import { CreateButton } from "../common/CreateButton"
 
 export default function SchedulesView() {
   const [schedules, setSchedules] = useState<ScheduleOut[]>(MOCK_SCHEDULES)
@@ -53,34 +51,34 @@ export default function SchedulesView() {
   }
 
   if (schedules.length === 0 && !isCreating) {
-    return <EmptyState onCreateSchedule={handleCreate} />
+    return <EmptyState 
+      onCreate={handleCreate} titleText="No schedules yet"
+      descriptionText="Create your first schedule to control when tasks can be auto-planned." 
+      buttonText="Create Schedule" 
+    />
   }
 
   if (editingSchedule) {
     return (
-      <ScheduleScreenLayout>
-        <ScheduleScroll>
-          <ScheduleEditForm
-            schedule={editingSchedule}
-            dayLabels={DAY_LABELS}
-            onSave={(updated) => {
-              setSchedules((prev) => {
-                const exists = prev.some((s) => s.id === updated.id)
-                if (exists) {
-                  return prev.map((s) => (s.id === updated.id ? updated : s))
-                }
-                return [...prev, updated]
-              })
-              setEditingSchedule(null)
-              setIsCreating(false)
-            }}
-            onCancel={() => {
-              setEditingSchedule(null)
-              setIsCreating(false)
-            }}
-          />
-        </ScheduleScroll>
-      </ScheduleScreenLayout>
+      <ScheduleEditForm
+        schedule={editingSchedule}
+        dayLabels={DAY_LABELS}
+        onSave={(updated) => {
+          setSchedules((prev) => {
+            const exists = prev.some((s) => s.id === updated.id)
+            if (exists) {
+              return prev.map((s) => (s.id === updated.id ? updated : s))
+            }
+            return [...prev, updated]
+          })
+          setEditingSchedule(null)
+          setIsCreating(false)
+        }}
+        onCancel={() => {
+          setEditingSchedule(null)
+          setIsCreating(false)
+        }}
+      />
     )
   }
 
@@ -98,19 +96,17 @@ export default function SchedulesView() {
   }
 
   return (
-    <ScheduleScreenLayout>
-      <ScheduleScroll style={{ paddingTop: 12, paddingBottom: 8 }}>
-        {schedules.map((schedule) => (
-          <ScheduleListItem
-            key={schedule.id}
-            schedule={schedule}
-            onSelect={() => setSelectedScheduleId(schedule.id)}
-            onEdit={(e) => handleEdit(schedule, e)}
-            onDelete={(e) => handleDelete(schedule, e)}
-          />
-        ))}
-        <CreateButton onClick={handleCreate} />
-      </ScheduleScroll>
-    </ScheduleScreenLayout>
+    <>
+      {schedules.map((schedule) => (
+        <ScheduleListItem
+          key={schedule.id}
+          schedule={schedule}
+          onSelect={() => setSelectedScheduleId(schedule.id)}
+          onEdit={(e) => handleEdit(schedule, e)}
+          onDelete={(e) => handleDelete(schedule, e)}
+        />
+      ))}
+      <CreateButton onClick={handleCreate} ariaLabel="Add Schedule" />
+    </>
   )
 }

@@ -1,10 +1,13 @@
 import { Button } from "antd"
 
 interface EmptyStateProps {
-  onCreateSchedule: () => void
+  onCreate: () => void
+  titleText: string
+  descriptionText: string
+  buttonText: string
 }
 
-export function EmptyState({ onCreateSchedule }: EmptyStateProps) {
+export function EmptyState({ onCreate, titleText, descriptionText, buttonText }: EmptyStateProps) {
   return (
     <div
       style={{
@@ -17,17 +20,17 @@ export function EmptyState({ onCreateSchedule }: EmptyStateProps) {
         boxShadow: "0 16px 40px rgba(0,0,0,0.55)",
       }}>
       <h2 style={{ margin: 0, marginBottom: 8, fontSize: 18, fontWeight: 600 }}>
-        No schedules yet
+        {titleText}
       </h2>
       <p style={{ margin: 0, marginBottom: 16, fontSize: 13, opacity: 0.85 }}>
-        Create your first schedule to control when tasks can be auto-planned.
+        {descriptionText}
       </p>
       <Button
         type="primary"
         shape="round"
         style={{ paddingInline: 24 }}
-        onClick={onCreateSchedule}>
-        Create Schedule
+        onClick={onCreate}>
+        {buttonText}
       </Button>
     </div>
   )
