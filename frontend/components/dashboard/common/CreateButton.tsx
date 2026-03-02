@@ -5,7 +5,7 @@ interface CreateButtonProps {
 
 export function CreateButton({
   onClick,
-  ariaLabel = "Create schedule",
+  ariaLabel = "Add",
 }: CreateButtonProps) {
   return (
     <div

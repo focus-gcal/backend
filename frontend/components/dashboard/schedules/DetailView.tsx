@@ -1,7 +1,6 @@
 import { Button } from "antd"
 import type { ScheduleListOut } from "./types/schedule"
-import { ScheduleScroll } from "./ScheduleScroll"
-import { DAY_LABELS, formatTime } from "./utils"
+import { DAY_LABELS, formatTime } from "~/utils"
 
 interface DetailViewProps {
   detail: ScheduleListOut
@@ -11,21 +10,7 @@ interface DetailViewProps {
 
 export function DetailView({ detail, onBack, onUpdate }: DetailViewProps) {
   return (
-    <div
-      style={{
-        position: "absolute",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        maxWidth: 480,
-        width: "100%",
-        margin: "0 auto",
-        display: "flex",
-        flexDirection: "column",
-        minHeight: 0,
-      }}>
-      <ScheduleScroll style={{ display: "flex", flexDirection: "column" }}>
+    <div style={{ display: "flex", flexDirection: "column" }}>
         <Button
           type="text"
           onClick={onBack}
@@ -71,7 +56,6 @@ export function DetailView({ detail, onBack, onUpdate }: DetailViewProps) {
             Update
           </Button>
         </div>
-      </ScheduleScroll>
     </div>
   )
 }

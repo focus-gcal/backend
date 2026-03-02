@@ -1,7 +1,7 @@
 import type { MenuProps } from "antd"
 import { Dropdown } from "antd"
 import type { ScheduleOut } from "./types/schedule"
-import { DAY_LABELS, formatTime } from "./utils"
+import { DAY_LABELS, formatTime } from "~/utils"
 
 interface ScheduleListItemProps {
   schedule: ScheduleOut
