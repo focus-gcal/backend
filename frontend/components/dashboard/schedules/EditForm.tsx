@@ -16,17 +16,19 @@ export function ScheduleEditForm({
   onCancel,
 }: ScheduleEditFormProps) {
   const [name, setName] = useState(schedule.name)
-  const [dayOfWeek, setDayOfWeek] = useState(schedule.day_of_week)
+  const [daysOfWeek, setDaysOfWeek] = useState<number[]>(
+    schedule.days_of_week ?? []
+  )
   const [startTime, setStartTime] = useState(schedule.start_time.slice(0, 5))
   const [endTime, setEndTime] = useState(schedule.end_time.slice(0, 5))
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (endTime <= startTime) return
+    if (daysOfWeek.length === 0 || endTime <= startTime) return
     onSave({
       ...schedule,
       name: name.trim(),
-      day_of_week: dayOfWeek,
+      days_of_week: daysOfWeek,
       start_time: startTime,
       end_time: endTime,
     })
@@ -68,25 +70,46 @@ export function ScheduleEditForm({
             color: "#fff",
           }}
         />
-        <label style={{ display: "block", marginBottom: 8, fontSize: 13 }}>Day</label>
-        <select
-          value={dayOfWeek}
-          onChange={(e) => setDayOfWeek(Number(e.target.value))}
+        <label style={{ display: "block", marginBottom: 8, fontSize: 13 }}>
+          Days
+        </label>
+        <div
           style={{
-            width: "100%",
+            display: "flex",
+            flexWrap: "wrap",
+            gap: 8,
             marginBottom: 16,
-            padding: 8,
-            borderRadius: 8,
-            border: "1px solid #404040",
-            background: "#212121",
-            color: "#fff",
           }}>
-          {dayLabels.map((label, i) => (
-            <option key={i} value={i}>
-              {label}
-            </option>
-          ))}
-        </select>
+          {dayLabels.map((label, i) => {
+            const checked = daysOfWeek.includes(i)
+            return (
+              <label
+                key={i}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 4,
+                  fontSize: 13,
+                }}>
+                <input
+                  type="checkbox"
+                  checked={checked}
+                  onChange={(e) => {
+                    const { checked } = e.target
+                    setDaysOfWeek((prev) => {
+                      if (checked) {
+                        return [...prev, i].sort()
+                      }
+                      return prev.filter((d) => d !== i)
+                    })
+                  }}
+                  style={{ accentColor: "#1677ff" }}
+                />
+                {label}
+              </label>
+            )
+          })}
+        </div>
         <label style={{ display: "block", marginBottom: 8, fontSize: 13 }}>Start time</label>
         <input
           type="time"

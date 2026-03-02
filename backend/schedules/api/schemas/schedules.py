@@ -6,7 +6,7 @@ from pydantic import field_validator
 
 class ScheduleCreateIn(Schema):
     name: str
-    day_of_week: int
+    days_of_week: list[int]
     start_time: time
     end_time: time
 
@@ -20,12 +20,19 @@ class ScheduleCreateIn(Schema):
             raise ValueError("name must be at most 100 characters")
         return v
 
-    @field_validator("day_of_week")
+    @field_validator("days_of_week")
     @classmethod
-    def valid_day(cls, v: int):
-        if v not in (0, 1, 2, 3, 4, 5, 6):
-            raise ValueError("day_of_week must be 0 (Mon) through 6 (Sun)")
-        return v
+    def valid_days(cls, v: list[int]):
+        if not v:
+            raise ValueError("days_of_week must not be empty")
+        cleaned: list[int] = []
+        for d in v:
+            if d not in (0, 1, 2, 3, 4, 5, 6):
+                raise ValueError("days_of_week values must be 0 (Mon) through 6 (Sun)")
+            if d not in cleaned:
+                cleaned.append(d)
+        cleaned.sort()
+        return cleaned
 
     @field_validator("end_time")
     @classmethod
@@ -40,7 +47,7 @@ class ScheduleUpdateIn(Schema):
     """Partial payload for updating a schedule; all fields optional."""
 
     name: str | None = None
-    day_of_week: int | None = None
+    days_of_week: list[int] | None = None
     start_time: time | None = None
     end_time: time | None = None
 
@@ -56,12 +63,21 @@ class ScheduleUpdateIn(Schema):
             raise ValueError("name must be at most 100 characters")
         return v
 
-    @field_validator("day_of_week")
+    @field_validator("days_of_week")
     @classmethod
-    def valid_day(cls, v: int | None):
-        if v is not None and v not in (0, 1, 2, 3, 4, 5, 6):
-            raise ValueError("day_of_week must be 0 (Mon) through 6 (Sun)")
-        return v
+    def valid_days(cls, v: list[int] | None):
+        if v is None:
+            return v
+        if not v:
+            raise ValueError("days_of_week must not be empty")
+        cleaned: list[int] = []
+        for d in v:
+            if d not in (0, 1, 2, 3, 4, 5, 6):
+                raise ValueError("days_of_week values must be 0 (Mon) through 6 (Sun)")
+            if d not in cleaned:
+                cleaned.append(d)
+        cleaned.sort()
+        return cleaned
 
     @field_validator("end_time")
     @classmethod
@@ -85,7 +101,7 @@ class ScheduleOut(Schema):
     id: int
     user_id: int
     name: str
-    day_of_week: int
+    days_of_week: list[int]
     start_time: time
     end_time: time
 
@@ -96,7 +112,7 @@ class ScheduleListOut(Schema):
     id: int
     user_id: int
     name: str
-    day_of_week: int
+    days_of_week: list[int]
     start_time: time
     end_time: time
     tasks: list[ScheduleTaskOut] = []

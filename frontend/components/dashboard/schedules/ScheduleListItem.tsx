@@ -1,7 +1,7 @@
 import type { MenuProps } from "antd"
 import { Dropdown } from "antd"
 import type { ScheduleOut } from "./types/schedule"
-import { DAY_LABELS, formatTime } from "./utils"
+import { formatDays, formatTime } from "~/utils"
 
 interface ScheduleListItemProps {
   schedule: ScheduleOut
@@ -46,7 +46,7 @@ export function ScheduleListItem({
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontWeight: 600, marginBottom: 4 }}>{schedule.name}</div>
         <div style={{ fontSize: 13, opacity: 0.85 }}>
-          {DAY_LABELS[schedule.day_of_week]} {formatTime(schedule.start_time)} –{" "}
+          {formatDays(schedule.days_of_week)} {formatTime(schedule.start_time)} –{" "}
           {formatTime(schedule.end_time)}
         </div>
       </div>

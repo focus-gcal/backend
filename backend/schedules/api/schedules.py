@@ -26,7 +26,7 @@ def list_schedules(request):
             id=s.id,
             user_id=s.user_id,
             name=s.name,
-            day_of_week=s.day_of_week,
+            days_of_week=s.days_of_week or [s.day_of_week],
             start_time=s.start_time,
             end_time=s.end_time,
         )
@@ -45,7 +45,7 @@ def get_schedule(request, schedule_id: int):
         id=schedule.id,
         user_id=schedule.user_id,
         name=schedule.name,
-        day_of_week=schedule.day_of_week,
+        days_of_week=schedule.days_of_week or [schedule.day_of_week],
         start_time=schedule.start_time,
         end_time=schedule.end_time,
         tasks=[
@@ -77,7 +77,7 @@ def update_schedule(request, schedule_id: int, data: ScheduleUpdateIn):
         id=schedule.id,
         user_id=schedule.user_id,
         name=schedule.name,
-        day_of_week=schedule.day_of_week,
+        days_of_week=schedule.days_of_week or [schedule.day_of_week],
         start_time=schedule.start_time,
         end_time=schedule.end_time,
         tasks=[
@@ -92,11 +92,13 @@ def create_schedule(request, data: ScheduleCreateIn):
         template, _ = ScheduleTemplate.objects.get_or_create(
             user=request.auth, name=data.name
         )
+        primary_day = data.days_of_week[0]
         schedule = Schedule.objects.create(
             schedule_template=template,
             user=request.auth,
             name=template.name,
-            day_of_week=data.day_of_week,
+            day_of_week=primary_day,
+            days_of_week=data.days_of_week,
             start_time=data.start_time,
             end_time=data.end_time,
         )
@@ -106,7 +108,7 @@ def create_schedule(request, data: ScheduleCreateIn):
         id=schedule.id,
         user_id=schedule.user_id,
         name=schedule.name,
-        day_of_week=schedule.day_of_week,
+        days_of_week=schedule.days_of_week or [schedule.day_of_week],
         start_time=schedule.start_time,
         end_time=schedule.end_time,
         tasks=[

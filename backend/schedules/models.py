@@ -51,12 +51,20 @@ class Schedule(models.Model):
     )
     name = models.CharField(max_length=100)
     day_of_week = models.PositiveSmallIntegerField(choices=DayOfWeek.choices)
+
+    days_of_week = models.JSONField(default=list, blank=True)
     start_time = models.TimeField()
     end_time = models.TimeField()
 
     def clean(self):
         if self.end_time <= self.start_time:
             raise ValidationError("End time must be after start time.")
+        if self.days_of_week:
+            invalid = [d for d in self.days_of_week if d not in range(7)]
+            if invalid:
+                raise ValidationError(
+                    "days_of_week must contain integers 0 (Mon) through 6 (Sun)."
+                )
 
     def __str__(self):
         return f"{self.name} ({self.get_day_of_week_display()} {self.start_time}-{self.end_time})"

@@ -1,9 +1,10 @@
 import { useState } from "react"
 import { useAuth } from "context/auth"
 import { Storage } from "@plasmohq/storage"
-import { Button, ConfigProvider, Dropdown, Layout, Menu } from "antd"
+import { ConfigProvider, Dropdown, Layout, Menu, theme } from "antd"
 import logUrl from "raw:~assets/logo.png"
 import SchedulesView from "./schedules"
+import TasksView from "./tasks"
 
 type DashboardView = "tasks" | "schedules" | "settings"
 
@@ -23,53 +24,10 @@ function Dashboard() {
   const { refreshAuth } = useAuth()
   const [view, setView] = useState<DashboardView>("tasks")
 
-  const renderEmptyState = (options: {
-    title: string
-    description: string
-    primaryLabel: string
-  }) => (
-    <div
-      style={{
-        background: "#262626",
-        borderRadius: 16,
-        padding: 24,
-        maxWidth: 320,
-        width: "100%",
-        textAlign: "center",
-        boxShadow: "0 16px 40px rgba(0,0,0,0.55)",
-      }}>
-      <h2
-        style={{
-          margin: 0,
-          marginBottom: 8,
-          fontSize: 18,
-          fontWeight: 600,
-        }}>
-        {options.title}
-      </h2>
-      <p
-        style={{
-          margin: 0,
-          marginBottom: 16,
-          fontSize: 13,
-          opacity: 0.85,
-        }}>
-        {options.description}
-      </p>
-      <Button
-        type="primary"
-        shape="round"
-        style={{
-          paddingInline: 24,
-        }}>
-        {options.primaryLabel}
-      </Button>
-    </div>
-  )
-
   return (
     <ConfigProvider
       theme={{
+        algorithm: theme.darkAlgorithm,
         token: {
           borderRadius: 8,
           colorBgContainer: "#212121",
@@ -88,7 +46,7 @@ function Dashboard() {
             controlItemBgHover: "#383838",
             controlItemBgActive: "#404040",
           },
-        },
+        },        
       }}>
       <Layout
         style={{
@@ -139,23 +97,22 @@ function Dashboard() {
             }}
           />
           <Dropdown
-
-          menu={{
-            items: settingsDropdownItems,
-            onClick: ({ key }) => {
-              if (key === "sign-out") {
-                storage.remove("user_auth")
-                refreshAuth()
-              } else {
-                setView(key as DashboardView)
-              }
-            },
-            style: { background: "#212121", minWidth: 120 },
-          }}
-          trigger={["click"]}
-          placement="bottomRight"
-          overlayStyle={{ background: "#212121", borderRadius: 8 }}
-          overlayClassName="dashboard-settings-dropdown">
+            menu={{
+              items: settingsDropdownItems,
+              onClick: ({ key }) => {
+                if (key === "sign-out") {
+                  storage.remove("user_auth")
+                  refreshAuth()
+                } else {
+                  setView(key as DashboardView)
+                }
+              },
+              style: { background: "#212121", minWidth: 120 },
+            }}
+            trigger={["click"]}
+            placement="bottomRight"
+            overlayStyle={{ background: "#212121", borderRadius: 8 }}
+            overlayClassName="dashboard-settings-dropdown">
             <button
               type="button"
               aria-label="Settings"
@@ -185,52 +142,50 @@ function Dashboard() {
             justifyContent: "flex-start",
             position: "relative",
           }}>
-          {view === "tasks" &&
-            renderEmptyState({
-              title: "No tasks yet",
-              description:
-                "Create your first task to start focusing on what matters.",
-              primaryLabel: "Create Task",
-            })}
-
-          {view === "schedules" && <SchedulesView />}
-
-          {view === "tasks" && (
-            <button
-              type="button"
-              aria-label="Add"
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              maxWidth: 480,
+              width: "100%",
+              margin: "0 auto",
+              display: "flex",
+              flexDirection: "column",
+              minHeight: 0,
+            }}>
+            <div
+              className="schedule-scroll"
               style={{
-                position: "absolute",
-                right: 24,
-                bottom: 24,
-                width: 44,
-                height: 44,
-                borderRadius: "50%",
-                border: "none",
-                background: "#1677ff",
-                color: "#ffffff",
-                fontSize: 24,
-                lineHeight: 1,
-                cursor: "pointer",
-                boxShadow: "0 12px 32px rgba(0,0,0,0.6)",
+                flex: 1,
+                minHeight: 0,
+                overflowY: "auto",
+                overflowX: "hidden",
+                WebkitOverflowScrolling: "touch",
+                paddingTop: 12,
+                paddingBottom: 8,
               }}>
-              +
-            </button>
-          )}
+              {view === "tasks" && <TasksView />}
 
-          {view === "settings" && (
-            <div>
-              <div>Settings</div>
-              <button
-                style={{ marginTop: 16 }}
-                onClick={() => {
-                  storage.remove("user_auth")
-                  refreshAuth()
-                }}>
-                Sign Out
-              </button>
+              {view === "schedules" && <SchedulesView />}
+
+              {view === "settings" && (
+                <div>
+                  <div>Settings</div>
+                  <button
+                    style={{ marginTop: 16 }}
+                    onClick={() => {
+                      storage.remove("user_auth")
+                      refreshAuth()
+                    }}>
+                    Sign Out
+                  </button>
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </Layout.Content>
       </Layout>
     </ConfigProvider>

@@ -20,6 +20,15 @@ def update_schedule(
         return None, (404, {"error": "Schedule not found."})
 
     payload = data.model_dump(exclude_unset=True)
+
+    # Keep day_of_week in sync with days_of_week for backwards-compat and ordering
+    days = payload.pop("days_of_week", None)
+    if days is not None:
+        # data validators already ensure values are valid, unique, and sorted
+        schedule.days_of_week = days
+        if days:
+            schedule.day_of_week = days[0]
+
     for key, value in payload.items():
         setattr(schedule, key, value)
     try:
