@@ -14,6 +14,9 @@ export function CreateButton({
         justifyContent: "flex-end",
         marginTop: 16,
         marginBottom: 8,
+        position: "fixed",
+        bottom: 24,
+        right: 24,
       }}>
       <button
         type="button"

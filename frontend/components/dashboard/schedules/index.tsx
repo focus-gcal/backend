@@ -52,7 +52,7 @@ export default function SchedulesView() {
 
   if (schedules.length === 0 && !isCreating) {
     return <EmptyState 
-      onCreateSchedule={handleCreate} titleText="No schedules yet"
+      onCreate={handleCreate} titleText="No schedules yet"
       descriptionText="Create your first schedule to control when tasks can be auto-planned." 
       buttonText="Create Schedule" 
     />

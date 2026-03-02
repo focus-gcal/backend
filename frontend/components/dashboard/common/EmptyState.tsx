@@ -1,13 +1,13 @@
 import { Button } from "antd"
 
 interface EmptyStateProps {
-  onCreateSchedule: () => void
+  onCreate: () => void
   titleText: string
   descriptionText: string
   buttonText: string
 }
 
-export function EmptyState({ onCreateSchedule, titleText, descriptionText, buttonText }: EmptyStateProps) {
+export function EmptyState({ onCreate, titleText, descriptionText, buttonText }: EmptyStateProps) {
   return (
     <div
       style={{
@@ -29,7 +29,7 @@ export function EmptyState({ onCreateSchedule, titleText, descriptionText, butto
         type="primary"
         shape="round"
         style={{ paddingInline: 24 }}
-        onClick={onCreateSchedule}>
+        onClick={onCreate}>
         {buttonText}
       </Button>
     </div>
