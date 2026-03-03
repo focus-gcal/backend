@@ -70,7 +70,9 @@ function Dashboard() {
               display: "flex",
               alignItems: "center",
               gap: 6,
-              marginRight: 12,
+              marginRight: 0,
+              position: "relative",
+              right:10,
             }}>
             <img
               src={logUrl}
@@ -113,21 +115,19 @@ function Dashboard() {
           trigger={["click"]}
           placement="bottomRight"
           >
-            <button
-              type="button"
+            <Button
+              type="text"
+              shape="circle"
               aria-label="Settings"
               style={{
-                background: "transparent",
-                border: "none",
                 color: "#ffffff",
-                cursor: "pointer",
-                padding: "4px 8px",
                 fontSize: 18,
                 lineHeight: 1,
-                borderRadius: 4,
+                position: "relative",
+                right: 10,
               }}>
               ⋮
-            </button>
+            </Button>
           </Dropdown>
         </Layout.Header>
 

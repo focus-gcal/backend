@@ -1,18 +1,5 @@
 import type { TaskOut } from "../types/task"
-// id: int
-// user_id: int
-// title: str
-// description: str
-// duration: int
-// priority: int
-// deadline: datetime | None
-// is_hard_deadline: bool
-// status: str
-// start_date: datetime | None
-// min_chunk: int | None
-// max_duration_chunk: int | None
-// schedule_id: int | None = None
-// schedule_name: str | None = None
+
 export const MOCK_TASKS: TaskOut[] = [
   {
     id: 1,

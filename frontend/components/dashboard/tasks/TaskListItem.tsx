@@ -145,22 +145,18 @@ export function TaskListItem({ task, onSelect, onEdit, onDelete }: TaskListItemP
         trigger={["click"]}
         placement="bottomRight"
         getPopupContainer={(node) => node.parentElement ?? document.body}>
-        <button
-          type="button"
+        <Button
+          type="text"
+          shape="circle"
           aria-label="Task options"
           onClick={(e) => e.stopPropagation()}
           style={{
-            background: "transparent",
-            border: "none",
             color: "rgba(255,255,255,0.85)",
-            cursor: "pointer",
-            padding: "2px 6px",
             fontSize: 16,
             lineHeight: 1,
-            borderRadius: 4,
           }}>
           ⋮
-        </button>
+        </Button>
       </Dropdown>
     </div>
   )
