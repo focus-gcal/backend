@@ -4,6 +4,7 @@ import type { TaskOut } from "./types/task"
 import { EmptyState } from "../common/EmptyState"
 import { CreateButton } from "../common/CreateButton"
 import { TaskListItem } from "./TaskListItem"
+import { DetailView } from "./DetailView"
 
 export default function TasksView() {
   const [tasks, setTasks] = useState<TaskOut[]>(MOCK_TASKS)
@@ -113,15 +114,11 @@ export default function TasksView() {
 
   if (detail) {
     return (
-      // <DetailView
-      //   detail={detail}
-      //   onBack={() => setSelectedScheduleId(null)}
-      //   onUpdate={() => {
-      //     setIsCreating(false)
-      //     setEditingSchedule(detail)
-      //   }}
-      // />
-      <>detail</>
+        <DetailView
+          detail={selectedTask}
+          onBack={() => setSelectedTaskId(null)}
+          onUpdate={() => {}}
+        />
     )
   }
 

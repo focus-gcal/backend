@@ -75,7 +75,7 @@ export function TaskListItem({ task, onSelect, onEdit, onDelete }: TaskListItemP
         borderRadius: 16,
         padding: 12,
         marginBottom: 12,
-        cursor: "pointer",
+        cursor: "default",
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",

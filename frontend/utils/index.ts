@@ -1,4 +1,5 @@
 export const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+export const CHUNK_MINUTES = 15
 
 export function formatTime(s: string): string {
   const [h, m] = s.split(":").map(Number)
@@ -163,10 +164,10 @@ export function getTaskPriorityLabel(priority: number): string {
 }
 
 export const formatDateCompact = (dateTimeString: string | null) => {
-  if (!dateTimeString) return "No deadline"
+  if (!dateTimeString) return null
 
   const date = new Date(dateTimeString)
-  if (Number.isNaN(date.getTime())) return "No deadline"
+  if (Number.isNaN(date.getTime())) return null
 
   const weekday = new Intl.DateTimeFormat(undefined, { weekday: "short" }).format(date)
   const monthDay = new Intl.DateTimeFormat(undefined, { month: "short", day: "numeric" }).format(date)
@@ -181,6 +182,24 @@ export const formatDuration = (durationMinutes: number) => {
   if (hours === 0) return `${minutes}m`
   if (minutes === 0) return `${hours}h`
   return `${hours}h ${minutes}m`
+}
+
+export const chunkCountToMinutes = (chunkCount: number) => {
+  if (!Number.isFinite(chunkCount) || chunkCount <= 0) return 0
+  return chunkCount * CHUNK_MINUTES
+}
+
+export const formatChunkDuration = (chunkCount: number | null) => {
+  if (chunkCount == null) return null
+  return formatDuration(chunkCountToMinutes(chunkCount))
+}
+
+export const formatChunkRange = (
+  minChunk: number | null,
+  maxDurationChunk: number | null
+) => {
+  if (minChunk == null || maxDurationChunk == null) return null
+  return `${formatDuration(chunkCountToMinutes(minChunk))} - ${formatDuration(chunkCountToMinutes(maxDurationChunk))}`
 }
 
 export const compactTitle = (title: string) => {
