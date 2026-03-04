@@ -45,7 +45,11 @@ export interface ScheduleApiUpdateIn {
 // ----- Frontend-only shapes used by the dashboard UI -----
 
 // What the dashboard stores in state / mocks (can aggregate multiple blocks, etc.)
-export interface ScheduleOut extends ScheduleApiOut {
+export interface ScheduleOut extends Omit<ScheduleApiOut, "day_of_week"> {
+  /** Legacy single day; required if days_of_week/time_blocks not used. */
+  day_of_week?: number
+  /** Optional: multiple days (0 = Mon ... 6 = Sun) when using template/block shape. */
+  days_of_week?: number[]
   /** Optional detailed per-day time blocks for the rich editor UI. */
   time_blocks?: ScheduleTimeBlock[]
 }
