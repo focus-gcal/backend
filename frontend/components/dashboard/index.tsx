@@ -191,7 +191,7 @@ function Dashboard() {
             <Toaster
               position="top-center"
               toastOptions={{
-                duration: 2500,
+                duration: 1500,
                 style: {
                   width: "200px",
                   minHeight: "40px",

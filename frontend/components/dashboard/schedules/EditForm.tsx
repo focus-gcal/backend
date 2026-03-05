@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react"
-import { Button, Form, Input, Select, TimePicker } from "antd"
+import { Button, Form, Input, Select, TimePicker, Typography } from "antd"
 import dayjs from "dayjs"
 import customParseFormat from "dayjs/plugin/customParseFormat"
 import type { ScheduleOut, ScheduleTimeBlock } from "./types/schedule"
@@ -21,6 +21,7 @@ export function ScheduleEditForm({
   onCancel,
 }: ScheduleEditFormProps) {
   const [name, setName] = useState(schedule.name)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [timeBlocks, setTimeBlocks] = useState<ScheduleTimeBlock[]>(() => {
     const norm = (s: string) => (s || "09:00").slice(0, 5)
     if (schedule.time_blocks && schedule.time_blocks.length > 0) {
@@ -71,7 +72,15 @@ export function ScheduleEditForm({
   }
 
   const handleSubmit = () => {
-    if (normalizedBlocks.length === 0) return
+    const trimmedName = name.trim()
+    if (!trimmedName) {
+      setErrorMessage("Title is required.")
+      return
+    }
+    if (normalizedBlocks.length === 0) {
+      setErrorMessage("At least one valid time block is required.")
+      return
+    }
 
     const daysOfWeek = Array.from(
       new Set(normalizedBlocks.map((b) => b.day_of_week))
@@ -85,9 +94,10 @@ export function ScheduleEditForm({
       .sort()
       .slice(-1)[0]
 
+    setErrorMessage(null)
     onSave({
       ...schedule,
-      name: name.trim(),
+      name: trimmedName,
       days_of_week: daysOfWeek,
       start_time: earliestStart,
       end_time: latestEnd,
@@ -126,13 +136,12 @@ export function ScheduleEditForm({
           padding: 7,
           paddingTop: 10,
         }}>
-        <Form.Item label="Name" required>
+        <Form.Item label="Name">
           <Input
             size="large"
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Schedule name"
-            required
             style={{ fontSize: 15 }}
           />
         </Form.Item>
@@ -247,8 +256,12 @@ export function ScheduleEditForm({
             </Button>
           </div>
         </Form.Item>
+        
         <Form.Item>
-          <div style={{ display: "flex", gap: 8 }}>
+        {errorMessage ? (
+          <Typography.Text style={{ color: "#ff7875", fontSize: 12, marginBottom: 10 }}>{errorMessage}</Typography.Text>
+        ) : null}
+          <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
             <Button type="primary" htmlType="submit" shape="round">
               Save
             </Button>
