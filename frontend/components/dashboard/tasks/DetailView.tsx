@@ -2,13 +2,15 @@ import {
   CalendarOutlined,
   ClockCircleOutlined,
   DashOutlined,
+  DeleteOutlined,
+  EditOutlined,
   FieldTimeOutlined,
   NodeIndexOutlined,
   PartitionOutlined,
   ScheduleOutlined,
   StopOutlined,
 } from "@ant-design/icons"
-import { Button, Card, Space, Tag, Typography } from "antd"
+import { Button, Card, Popconfirm, Space, Tag, Typography } from "antd"
 import type { TaskOut } from "./types/task"
 import {
   formatChunkRange,
@@ -23,7 +25,8 @@ import {
 interface DetailViewProps {
   detail: TaskOut
   onBack: () => void
-  onUpdate: () => void
+  onUpdate: (e: React.MouseEvent) => void
+  onDelete: (e: React.MouseEvent) => void
 }
 
 
@@ -44,7 +47,7 @@ const toTagBackground = (rgbaColor: string) => {
   return `rgba(${r}, ${g}, ${b}, 0.16)`
 }
 
-export function DetailView({ detail, onBack, onUpdate }: DetailViewProps) {
+export function DetailView({ detail, onBack, onUpdate, onDelete }: DetailViewProps) {
   const description = detail.description?.trim()
   const priorityLabel = getTaskPriorityLabel(detail.priority) ?? "Unknown"
   const statusLabel = getTaskStatusLabel(detail.status) ?? "Unknown"
@@ -122,9 +125,33 @@ export function DetailView({ detail, onBack, onUpdate }: DetailViewProps) {
       <Card style={{ background: "#262626", borderRadius: 16 }} styles={{ body: { padding: 16 } }}>
         <Space orientation="vertical" size={12} style={{ width: "100%" }}>
           <div>
-            <Typography.Title level={4} style={{ margin: 0, marginBottom: 6, color: "rgba(255,255,255,0.92)", fontSize: 20 }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <Typography.Title level={4} style={{ margin: 0, marginBottom: 6, color: "rgba(255,255,255,0.92)", fontSize: 17 }}>
               {detail.title || "Untitled task"}
             </Typography.Title>
+            <div style={{ display: "flex", gap: 8, marginLeft: "3px" }}>
+                <Button
+                  type="text"
+                  aria-label="Edit task"
+                  icon={<EditOutlined />}
+                  onClick={onUpdate}
+                  style={{ color: "rgba(255,255,255,0.85)" }}
+                />
+                <Popconfirm
+                  title="Delete task?"
+                  description="This cannot be undone."
+                  okText="Delete"
+                  cancelText="Cancel"
+                  okButtonProps={{ danger: true }}
+                  onConfirm={onDelete}>
+                  <Button
+                    type="text"
+                    danger
+                    aria-label="Delete task"
+                    icon={<DeleteOutlined />}
+                  />
+              </Popconfirm>
+            </div></div>
             <Space wrap size={6}>
               <Tag
                 style={{

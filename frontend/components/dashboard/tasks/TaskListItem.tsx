@@ -1,7 +1,7 @@
 import { useState } from "react"
 import type { MenuProps } from "antd"
-import { Button, Dropdown, Space, Typography } from "antd"
-import { CheckOutlined, ClockCircleOutlined, FlagOutlined, ScheduleOutlined, TagOutlined } from "@ant-design/icons"
+import { Button, Dropdown, Popconfirm, Space, Typography } from "antd"
+import { CheckOutlined, ClockCircleOutlined, DeleteOutlined, EditOutlined, FlagOutlined, ScheduleOutlined, TagOutlined } from "@ant-design/icons"
 import type { TaskOut } from "./types/task"
 import { formatDateCompact, formatDuration , compactTitle, getTaskStatusLabel, getTaskStatusColor, getTaskPriorityColor, getTaskPriorityLabel} from "~/utils"
 

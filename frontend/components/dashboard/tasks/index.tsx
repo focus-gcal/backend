@@ -5,6 +5,7 @@ import { EmptyState } from "../common/EmptyState"
 import { CreateButton } from "../common/CreateButton"
 import { TaskListItem } from "./TaskListItem"
 import { DetailView } from "./DetailView"
+import { TaskEditForm } from "./EditForm"
 
 export default function TasksView() {
   const [tasks, setTasks] = useState<TaskOut[]>(MOCK_TASKS)
@@ -56,27 +57,6 @@ export default function TasksView() {
     setEditingTask(draft)
   }
 
-  // const handleEdit = (task: TaskOut, e: React.MouseEvent) => {
-  //   e.stopPropagation()
-  //   setIsCreating(false)
-  //   setEditingTask(task)
-  // }
-
-  // const handleCreate = () => {
-  //   const nextId =
-  //     tasks.length > 0 ? Math.max(...tasks.map((t) => t.id)) + 1 : 1
-  //   const userId = tasks[0]?.user_id ?? 1
-  //   const draft: TaskOut = {
-  //     id: nextId,
-  //     user_id: userId,
-  //     title: "",
-  //     description: "",
-  //     duration: 0,
-  //     priority: 0,
-  //   }
-  //   setIsCreating(true)
-  //   setEditingTask(draft)
-  // }
 
   if (tasks.length === 0 && !isCreating) {
     return <EmptyState
@@ -89,26 +69,25 @@ export default function TasksView() {
 
   if (editingTask) {
     return (
-      // <ScheduleEditForm
-      //   schedule={editingSchedule}
-      //   dayLabels={DAY_LABELS}
-      //   onSave={(updated) => {
-      //     setSchedules((prev) => {
-      //       const exists = prev.some((s) => s.id === updated.id)
-      //       if (exists) {
-      //         return prev.map((s) => (s.id === updated.id ? updated : s))
-      //       }
-      //       return [...prev, updated]
-      //     })
-      //     setEditingSchedule(null)
-      //     setIsCreating(false)
-      //   }}
-      //   onCancel={() => {
-      //     setEditingSchedule(null)
-      //     setIsCreating(false)
-      //   }}
-      // />
-      <>d</>
+      <TaskEditForm
+        task={editingTask}
+        onSave={(updated) => {
+          setTasks((prev) => {
+            const exists = prev.some((t) => t.id === updated.id)
+            if (exists) {
+              return prev.map((t) => (t.id === updated.id ? updated : t))
+            }
+            return [...prev, updated]
+          })
+          setEditingTask(null)
+          setIsCreating(false)
+          setSelectedTaskId(updated.id)
+        }}
+        onCancel={() => {
+          setEditingTask(null)
+          setIsCreating(false)
+        }}
+      />
     )
   }
 
@@ -117,7 +96,8 @@ export default function TasksView() {
         <DetailView
           detail={selectedTask}
           onBack={() => setSelectedTaskId(null)}
-          onUpdate={() => {}}
+          onUpdate={(e) => handleEdit(selectedTask, e)}
+          onDelete={(e) => handleDelete(selectedTask, e)}
         />
     )
   }

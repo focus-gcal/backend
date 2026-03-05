@@ -15,6 +15,7 @@
     "@plasmohq/messaging": "^0.7.2",
     "@plasmohq/storage": "^1.15.0",
     "antd": "^6.3.0",
+    "dayjs": "^1.11.19",
     "plasmo": "0.90.5",
     "react": "18.2.0",
     "react-dom": "18.2.0"

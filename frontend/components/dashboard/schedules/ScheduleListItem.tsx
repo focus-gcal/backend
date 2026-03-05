@@ -85,14 +85,19 @@ export function ScheduleListItem({
   const menuItems: MenuProps["items"] = [
     {
       key: "edit",
-      label: "Edit",
+      label: "Edit Schedule",
       onClick: (info) => onEdit(info.domEvent as React.MouseEvent),
     },
     {
       key: "delete",
       danger: true,
-      label: "Delete",
+      label: "Delete Schedule",
       onClick: (info) => onDelete(info.domEvent as React.MouseEvent),
+    },
+    {
+      key: "cancel",
+      label: "Cancel",
+      onClick: (info) => (info.domEvent as React.MouseEvent).stopPropagation(),
     },
   ]
 
@@ -119,10 +124,11 @@ export function ScheduleListItem({
         gap: 12,
       }}>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 8, display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap" }}>
+        <div style={{ fontWeight: 500, fontSize: 14, marginBottom: 8, display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap" }}>
           <span>{schedule.name}</span>
-          <span style={{ fontWeight: 500, fontSize: 14, opacity: 0.85 }}>
-            {formatTotalHours(getScheduleTotalHours(schedule))}
+          <span>·</span>
+          <span style={{ fontWeight: 400, fontSize: 14, opacity: 0.85 }}>
+            {formatTotalHours(getScheduleTotalHours(schedule))}/week
           </span>
         </div>
         <DayAllocationBar daySegments={getScheduleDaySegments(schedule)} />

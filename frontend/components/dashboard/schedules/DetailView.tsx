@@ -1,5 +1,5 @@
 import { ClockCircleOutlined, DeleteOutlined, EditOutlined } from "@ant-design/icons"
-import { Button, Popconfirm } from "antd"
+import { Button, Popconfirm, Typography } from "antd"
 import type { ScheduleListOut } from "./types/schedule"
 import { DAY_LABELS, formatTime } from "~/utils"
 
@@ -69,9 +69,9 @@ export function DetailView({ detail, onBack, onUpdate, onDelete }: DetailViewPro
             gap: 12,
             marginBottom: 24,
           }}>
-          <h2 style={{ margin: 0, fontSize: 18, fontWeight: 600 }}>
+          <Typography.Title level={4} style={{ margin: 0, marginBottom: 6, color: "rgba(255,255,255,0.92)", fontSize: 20 }}>
             {detail.name}
-          </h2>
+          </Typography.Title>
           <div style={{ display: "flex", gap: 8 }}>
             <Button
               type="text"

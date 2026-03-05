@@ -60,13 +60,13 @@ export function ScheduleEditForm({
   const boxStyle: React.CSSProperties = {
     width: "100%",
     minWidth: 0,
-    minHeight: 40,
-    padding: "12px 14px",
+    minHeight: 35,
+    padding: "2px 5px",
     borderRadius: 8,
     border: "1px solid #404040",
     background: "#212121",
     color: "#fff",
-    fontSize: 15,
+    fontSize: 8,
     boxSizing: "border-box",
   }
 
@@ -123,7 +123,7 @@ export function ScheduleEditForm({
         style={{
           background: "#262626",
           borderRadius: 16,
-          padding: 5,
+          padding: 7,
           paddingTop: 10,
         }}>
         <Form.Item label="Name" required>
@@ -173,7 +173,7 @@ export function ScheduleEditForm({
                     )
                   }}
                   options={DAY_LABELS.map((label, i) => ({ label, value: i }))}
-                  style={{ width: "100%" }}
+                  style={{ width: "100%" , padding: "4px 5px"}}
                 />
                 <TimePicker
                   value={toTimeValue(block.start_time)}
@@ -221,6 +221,7 @@ export function ScheduleEditForm({
                   type="text"
                   danger
                   aria-label="Remove time block"
+                  size="small"
                   onClick={() =>
                     setTimeBlocks((prev) => prev.filter((_, i) => i !== index))
                   }>
