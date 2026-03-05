@@ -34,6 +34,7 @@ interface DetailViewProps {
   detail: ScheduleListOut
   onBack: () => void
   onUpdate: () => void
+  onDelete: () => void
 }
 
 export function DetailView({ detail, onBack, onUpdate, onDelete }: DetailViewProps) {
@@ -189,13 +190,6 @@ export function DetailView({ detail, onBack, onUpdate, onDelete }: DetailViewPro
               ))}
             </ul>
           )}
-          <Button
-            type="primary"
-            shape="round"
-            style={{ marginTop: 16 }}
-            onClick={onUpdate}>
-            Update
-          </Button>
         </div>
       </div>
     </div>

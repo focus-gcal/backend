@@ -112,7 +112,7 @@ export function ScheduleListItem({
         borderRadius: 16,
         padding: 13,
         marginBottom: 12,
-        cursor: "pointer",
+        cursor: "default",
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
@@ -139,6 +139,7 @@ export function ScheduleListItem({
           onClick={(e) => e.stopPropagation()}
           style={{
             color: "rgba(255,255,255,0.85)",
+            cursor: "pointer",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
