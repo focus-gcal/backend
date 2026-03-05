@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { notification } from "antd"
+import { toast } from "react-hot-toast"
 import { MOCK_SCHEDULES, getMockScheduleDetail } from "./fixtures/mock"
 import type { ScheduleOut, ScheduleListOut } from "./types/schedule"
 import { DAY_LABELS } from "~/utils"
@@ -10,10 +10,9 @@ import { ScheduleListItem } from "./ScheduleListItem"
 import { CreateButton } from "../common/CreateButton"
 
 export default function SchedulesView() {
-  const [api, contextHolder] = notification.useNotification({
-    placement: "topRight",
-    top: 24,
-  })
+  const notifySuccess = (message: string) => {
+    toast.success(message)
+  }
   const [schedules, setSchedules] = useState<ScheduleOut[]>(MOCK_SCHEDULES)
   const [selectedScheduleId, setSelectedScheduleId] = useState<number | null>(null)
   const [editingSchedule, setEditingSchedule] = useState<ScheduleOut | null>(null)
@@ -30,7 +29,7 @@ export default function SchedulesView() {
       setEditingSchedule(null)
       setIsCreating(false)
     }
-    api.success({ message: "Schedule deleted" })
+    notifySuccess("Schedule deleted")
   }
 
   const handleDelete = (schedule: ScheduleOut, e: React.MouseEvent) => {
@@ -85,9 +84,7 @@ export default function SchedulesView() {
             const next = exists
               ? prev.map((s) => (s.id === updated.id ? updated : s))
               : [...prev, updated]
-            api.success({
-              message: exists ? "Schedule updated" : "Schedule created",
-            })
+            notifySuccess(exists ? "Schedule updated" : "Schedule created")
             return next
           })
           setEditingSchedule(null)
@@ -130,7 +127,6 @@ export default function SchedulesView() {
 
   return (
     <>
-      {contextHolder}
       {content}
     </>
   )

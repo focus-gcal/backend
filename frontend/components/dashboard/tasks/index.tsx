@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { toast } from "react-hot-toast"
 import { MOCK_TASKS } from "./fixtures/mock"
 import type { TaskOut } from "./types/task"
 import { EmptyState } from "../common/EmptyState"
@@ -8,6 +9,9 @@ import { DetailView } from "./DetailView"
 import { TaskEditForm } from "./EditForm"
 
 export default function TasksView() {
+  const notifySuccess = (message: string) => {
+    toast.success(message)
+  }
   const [tasks, setTasks] = useState<TaskOut[]>(MOCK_TASKS)
   const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null)
   const [editingTask, setEditingTask] = useState<TaskOut | null>(null)
@@ -25,6 +29,7 @@ export default function TasksView() {
       setEditingTask(null)
       setIsCreating(false)
     }
+    notifySuccess("Task deleted")
   }
 
   const handleEdit = (task: TaskOut, e: React.MouseEvent) => {
@@ -58,27 +63,31 @@ export default function TasksView() {
   }
 
 
-  if (tasks.length === 0 && !isCreating) {
-    return <EmptyState
-    onCreate={() => {}}
-    titleText="No tasks yet"
-    descriptionText="Create your first task to start focusing on what matters."
-    buttonText="Create Task"
-  />
-  }
+  let content
 
-  if (editingTask) {
-    return (
+  if (tasks.length === 0 && !isCreating) {
+    content = (
+      <EmptyState
+        onCreate={handleCreate}
+        titleText="No tasks yet"
+        descriptionText="Create your first task to start focusing on what matters."
+        buttonText="Create Task"
+      />
+    )
+  } else if (editingTask) {
+    content = (
       <TaskEditForm
         task={editingTask}
         onSave={(updated) => {
+          let exists = false
           setTasks((prev) => {
-            const exists = prev.some((t) => t.id === updated.id)
+            exists = prev.some((t) => t.id === updated.id)
             if (exists) {
               return prev.map((t) => (t.id === updated.id ? updated : t))
             }
             return [...prev, updated]
           })
+          notifySuccess(exists ? "Task updated" : "Task created")
           setEditingTask(null)
           setIsCreating(false)
           setSelectedTaskId(updated.id)
@@ -89,31 +98,35 @@ export default function TasksView() {
         }}
       />
     )
-  }
-
-  if (detail) {
-    return (
-        <DetailView
-          detail={selectedTask}
-          onBack={() => setSelectedTaskId(null)}
-          onUpdate={(e) => handleEdit(selectedTask, e)}
-          onDelete={(e) => handleDelete(selectedTask, e)}
-        />
+  } else if (detail) {
+    content = (
+      <DetailView
+        detail={selectedTask}
+        onBack={() => setSelectedTaskId(null)}
+        onUpdate={(e) => handleEdit(selectedTask, e)}
+        onDelete={(e) => handleDelete(selectedTask, e)}
+      />
+    )
+  } else {
+    content = (
+      <>
+        {tasks.map((task) => (
+          <TaskListItem
+            key={task.id}
+            task={task}
+            onSelect={() => setSelectedTaskId(task.id)}
+            onEdit={(e) => handleEdit(task, e)}
+            onDelete={(e) => handleDelete(task, e)}
+          />
+        ))}
+        <CreateButton onClick={handleCreate} ariaLabel="Add Task" />
+      </>
     )
   }
 
   return (
     <>
-      {tasks.map((task) => (
-        <TaskListItem
-          key={task.id}
-          task={task}
-          onSelect={() => setSelectedTaskId(task.id)}
-          onEdit={(e) => handleEdit(task, e)}
-          onDelete={(e) => handleDelete(task, e)}
-        />
-      ))}
-      <CreateButton onClick={handleCreate} ariaLabel="Add Task" />
+      {content}
     </>
   )
 }

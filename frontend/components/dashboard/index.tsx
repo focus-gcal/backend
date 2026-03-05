@@ -2,6 +2,7 @@ import { useState } from "react"
 import { useAuth } from "context/auth"
 import { Storage } from "@plasmohq/storage"
 import { Button, ConfigProvider, Dropdown, Layout, Menu } from "antd"
+import { Toaster } from "react-hot-toast"
 import logUrl from "raw:~assets/logo.png"
 import SchedulesView from "./schedules"
 import TasksView from "./tasks"
@@ -187,6 +188,24 @@ function Dashboard() {
               )}
               </div>
             </div>
+            <Toaster
+              position="top-center"
+              toastOptions={{
+                duration: 2500,
+                style: {
+                  width: "200px",
+                  minHeight: "40px",
+                  background: "#3a3a3a",
+                  color: "white",
+                },
+                success: {
+                  iconTheme: {
+                    primary: "#52c41a",
+                    secondary: "white",
+                  },
+                },
+              }}
+            />
         </Layout.Content>
       </Layout>
     </ConfigProvider>
