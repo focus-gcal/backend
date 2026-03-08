@@ -13,4 +13,7 @@ venv/
 
 # OS
 .DS_Store
+
+# Editor / Cursor temp files
+_tmp_*
 db.sqlite3
