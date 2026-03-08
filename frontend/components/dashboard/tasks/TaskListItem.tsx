@@ -9,6 +9,7 @@ import { formatDateCompact, formatDuration , compactTitle, getTaskStatusLabel, g
 type TaskListItemProps = {
   task: TaskOut
   onSelect: () => void
+  onToggleStatus: (e: React.MouseEvent) => void
   onEdit: (e: React.MouseEvent) => void
   onDelete: (e: React.MouseEvent) => void
 }
@@ -36,7 +37,7 @@ const getCheckMarkButtonCSS = (status: string) => {
         background: "rgba(255,255,255,0.08)"
     }
 }
-export function TaskListItem({ task, onSelect, onEdit, onDelete }: TaskListItemProps) {
+export function TaskListItem({ task, onSelect, onToggleStatus, onEdit, onDelete }: TaskListItemProps) {
   const [isCheckHovered, setIsCheckHovered] = useState(false)
   const menuItems: MenuProps["items"] = [
     {
@@ -87,7 +88,7 @@ export function TaskListItem({ task, onSelect, onEdit, onDelete }: TaskListItemP
           type="text"
           shape="circle"
           aria-label="Mark task complete"
-          onClick={(e) => e.stopPropagation()}
+          onClick={onToggleStatus}
           onMouseEnter={() => setIsCheckHovered(true)}
           onMouseLeave={() => setIsCheckHovered(false)}
           style={{

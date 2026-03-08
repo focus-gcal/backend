@@ -6,9 +6,11 @@ import type { ScheduleTimeBlock } from "~components/dashboard/schedules/types/sc
 import { SCHEDULES_LIST_QUERY_KEY } from "./useSchedulesList"
 import { scheduleDetailQueryKey } from "./useScheduleDetail"
 
+const SCHEDULES_MESSAGE_NAME = "schedules" as Parameters<typeof sendToBackground>[0]["name"]
+
 async function sendSchedulesMessage<T>(body: Parameters<typeof sendToBackground>[0]["body"]) {
   const res = await sendToBackground({
-    name: "schedules",
+    name: SCHEDULES_MESSAGE_NAME,
     body: body!,
   })
   if (!res.ok) throw new Error(res.error)

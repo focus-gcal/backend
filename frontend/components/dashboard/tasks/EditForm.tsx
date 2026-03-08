@@ -2,11 +2,11 @@ import { Button, Collapse, DatePicker, Input, InputNumber, Select, Space, Switch
 import dayjs from "dayjs"
 import { useState } from "react"
 import type { TaskOut, TaskPriority, TaskStatus } from "./types/task"
-import { MOCK_SCHEDULES } from "../schedules/fixtures/mock"
 import { CHUNK_MINUTES } from "~/utils"
 
 interface TaskEditFormProps {
   task: TaskOut
+  schedules: Array<{ id: number; name: string }>
   onSave: (updated: TaskOut) => void
   onCancel: () => void
 }
@@ -36,10 +36,10 @@ const fromInputDateValue = (value: string) => {
   return `${value}T00:00:00.000Z`
 }
 
-export function TaskEditForm({ task, onSave, onCancel }: TaskEditFormProps) {
+export function TaskEditForm({ task, schedules, onSave, onCancel }: TaskEditFormProps) {
   const initialScheduleId =
     task.schedule_id ??
-    MOCK_SCHEDULES.find((schedule) => schedule.name === task.schedule_name)?.id ??
+    schedules.find((schedule) => schedule.name === task.schedule_name)?.id ??
     null
 
   const [title, setTitle] = useState(task.title)
@@ -84,7 +84,7 @@ export function TaskEditForm({ task, onSave, onCancel }: TaskEditFormProps) {
     }
 
     const selectedSchedule =
-      MOCK_SCHEDULES.find((schedule) => schedule.id === selectedScheduleId) ?? null
+      schedules.find((schedule) => schedule.id === selectedScheduleId) ?? null
 
     setErrorMessage(null)
     onSave({
@@ -192,7 +192,7 @@ export function TaskEditForm({ task, onSave, onCancel }: TaskEditFormProps) {
                 placeholder="Select a schedule"
                 value={selectedScheduleId ?? undefined}
                 onChange={(value) => setSelectedScheduleId(value ?? null)}
-                options={MOCK_SCHEDULES.map((schedule) => ({
+                options={schedules.map((schedule) => ({
                   label: schedule.name,
                   value: schedule.id,
                 }))}
