@@ -97,6 +97,7 @@ export default function TasksView() {
       max_duration_chunk: null,
       schedule_id: null,
       schedule_name: null,
+      prev_schedule_id: null,
     }
     setIsCreating(true)
     setEditingTask(draft)
@@ -116,6 +117,7 @@ export default function TasksView() {
       max_duration_chunk: updated.max_duration_chunk,
       schedule_name: updated.schedule_name,
       schedule_id: updated.schedule_id,
+      prev_schedule_id: updated.prev_schedule_id,
     }
 
     try {

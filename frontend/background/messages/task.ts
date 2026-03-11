@@ -2,6 +2,7 @@ import type { PlasmoMessaging } from "@plasmohq/messaging"
 
 import config from "~/config"
 import { getAuthToken } from "~/utils/auth-token"
+import { invalidateScheduleDetailCache } from "./schedules"
 
 type TaskPayload = {
   title?: string
@@ -20,9 +21,9 @@ type TaskPayload = {
 export type TaskRequest =
   | { action: "list" }
   | { action: "get"; task_id: number }
-  | { action: "create"; payload: TaskPayload }
-  | { action: "update"; task_id: number; payload: TaskPayload }
-  | { action: "delete"; task_id: number }
+  | { action: "create"; payload: TaskPayload, schedule_id: number | null }
+  | { action: "update"; task_id: number; payload: TaskPayload, schedule_id: number | null, prev_schedule_id: number | null }
+  | { action: "delete"; task_id: number, schedule_id: number | null }
 
 type TaskResponse<T = unknown> =
   | { ok: true; data: T }
@@ -177,6 +178,7 @@ const handler: PlasmoMessaging.MessageHandler<TaskRequest, TaskResponse> = async
 
   if (action === "create") {
     const payload = req.body?.payload
+    const schedule_id = req.body?.schedule_id
     if (!payload) {
       res.send({ ok: false, error: "payload is required" })
       return
@@ -184,6 +186,9 @@ const handler: PlasmoMessaging.MessageHandler<TaskRequest, TaskResponse> = async
     try {
       const data = await fetchCreateTask(token, payload)
       listCache = null
+      if (schedule_id) {
+        invalidateScheduleDetailCache(schedule_id)
+      }
       res.send({ ok: true, data })
     } catch (e) {
       const message = e instanceof Error ? e.message : "Request failed"
@@ -195,6 +200,8 @@ const handler: PlasmoMessaging.MessageHandler<TaskRequest, TaskResponse> = async
   if (action === "update") {
     const task_id = req.body?.task_id
     const payload = req.body?.payload
+    const schedule_id = req.body?.schedule_id
+    const prev_schedule_id = req.body?.prev_schedule_id
     if (task_id == null || typeof task_id !== "number") {
       res.send({ ok: false, error: "task_id is required" })
       return
@@ -207,6 +214,12 @@ const handler: PlasmoMessaging.MessageHandler<TaskRequest, TaskResponse> = async
       const data = await fetchUpdateTask(token, task_id, payload)
       listCache = null
       detailCache.delete(task_id)
+      if (schedule_id) {
+        invalidateScheduleDetailCache(schedule_id)
+      }
+      if (prev_schedule_id) {
+        invalidateScheduleDetailCache(prev_schedule_id)
+      }
       res.send({ ok: true, data })
     } catch (e) {
       const message = e instanceof Error ? e.message : "Request failed"
@@ -217,6 +230,7 @@ const handler: PlasmoMessaging.MessageHandler<TaskRequest, TaskResponse> = async
 
   if (action === "delete") {
     const task_id = req.body?.task_id
+    const schedule_id = req.body?.schedule_id
     if (task_id == null || typeof task_id !== "number") {
       res.send({ ok: false, error: "task_id is required" })
       return
@@ -225,6 +239,9 @@ const handler: PlasmoMessaging.MessageHandler<TaskRequest, TaskResponse> = async
       await fetchDeleteTask(token, task_id)
       listCache = null
       detailCache.delete(task_id)
+      if (schedule_id) {
+        invalidateScheduleDetailCache(schedule_id)
+      }
       res.send({ ok: true, data: null })
     } catch (e) {
       const message = e instanceof Error ? e.message : "Request failed"

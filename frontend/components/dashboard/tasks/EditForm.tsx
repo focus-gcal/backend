@@ -61,6 +61,7 @@ export function TaskEditForm({
   const [maxDurationChunk, setMaxDurationChunk] = useState<number | null>(task.max_duration_chunk)
   const [selectedScheduleId, setSelectedScheduleId] = useState<number | null>(initialScheduleId)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [prevScheduleId, setPrevScheduleId] = useState<number | null>(task.schedule_id)
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -112,6 +113,7 @@ export function TaskEditForm({
       max_duration_chunk: maxDurationChunk,
       schedule_id: selectedSchedule ? selectedSchedule.id : null,
       schedule_name: selectedSchedule ? selectedSchedule.name : null,
+      prev_schedule_id: prevScheduleId,
     })
   }
 

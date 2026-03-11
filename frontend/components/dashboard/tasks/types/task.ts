@@ -16,6 +16,7 @@ export interface TaskCreateIn {
   max_duration_chunk?: number | null
   schedule_name?: string | null
   schedule_id?: number | null
+  prev_schedule_id?: number | null
 }
 
 // Update task payload (PATCH /tasks/{task_id})
@@ -32,6 +33,7 @@ export interface TaskUpdateIn {
   max_duration_chunk?: number | null
   schedule_name?: string | null
   schedule_id?: number | null
+  prev_schedule_id?: number | null
 }
 
 // Task returned by API responses (GET/POST/PATCH /tasks)
@@ -50,5 +52,6 @@ export interface TaskOut {
   max_duration_chunk: number | null
   schedule_id: number | null
   schedule_name: string | null
+  prev_schedule_id: number | null
 }
 

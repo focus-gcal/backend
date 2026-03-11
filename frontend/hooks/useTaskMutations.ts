@@ -21,7 +21,7 @@ async function sendTaskMessage<T>(body: Parameters<typeof sendToBackground>[0]["
 export function useCreateTask() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: (payload: TaskCreateIn) => sendTaskMessage({ action: "create", payload }),
+    mutationFn: (payload: TaskCreateIn) => sendTaskMessage({ action: "create", payload, schedule_id: payload.schedule_id }),
     onSuccess: (_, payload) => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] }),
       queryClient.invalidateQueries({ queryKey: TASKS_LIST_QUERY_KEY })
@@ -34,13 +34,14 @@ export function useUpdateTask() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (payload: { task_id: number; payload: TaskUpdateIn }) =>
-      sendTaskMessage({ action: "update", ...payload }),
+      sendTaskMessage({ action: "update", ...payload, schedule_id: payload.payload.schedule_id , prev_schedule_id: payload.payload.prev_schedule_id }),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] })
       queryClient.invalidateQueries({
         queryKey: taskDetailQueryKey(variables.task_id),
       })
       queryClient.invalidateQueries({ queryKey: scheduleDetailQueryKey(variables.payload.schedule_id) })
+      queryClient.invalidateQueries({ queryKey: scheduleDetailQueryKey(variables.payload.prev_schedule_id) })
     },
   })
 }
