@@ -1,3 +1,4 @@
+from django.db.models import Case, F, IntegerField, Value, When
 from ninja import Router
 from schedules.models import ScheduleTemplate
 from tasks.models import Task
@@ -11,7 +12,30 @@ router = Router()
 
 @router.get("/", response={200: list[TaskOut]}, auth=JWTAuth())
 def list_tasks(request):
-    tasks = Task.objects.filter(user=request.auth)
+    tasks = (
+        Task.objects.select_related("schedule")
+        .filter(user=request.auth)
+        .annotate(
+            status_group=Case(
+                When(status="completed", then=Value(1)),  # group 2
+                default=Value(0),  # group 1
+                output_field=IntegerField(),
+            ),
+            deadline_open=Case(
+                When(status="completed", then=Value(None)),
+                default=F("deadline"),
+            ),
+            deadline_done=Case(
+                When(status="completed", then=F("deadline")),
+                default=Value(None),
+            ),
+        )
+        .order_by(
+            "status_group",  # non-completed first, completed second
+            F("deadline_open").asc(nulls_last=True),  # group 1: earliest first
+            F("deadline_done").desc(nulls_last=True),  # group 2: latest first
+        )
+    )
     tasks_list = [
         TaskOut(
             id=t.id,
@@ -37,7 +61,9 @@ def list_tasks(request):
 @router.get("/{task_id}", response={200: TaskOut, 404: dict}, auth=JWTAuth())
 def get_task(request, task_id: int):
     try:
-        task = Task.objects.get(user=request.auth, id=task_id)
+        task = Task.objects.select_related("schedule").get(
+            user=request.auth, id=task_id
+        )
     except Task.DoesNotExist:
         return 404, {"error": "Task not found."}
     return 200, TaskOut(
