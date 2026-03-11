@@ -23,7 +23,6 @@ export function useCreateTask() {
   return useMutation({
     mutationFn: (payload: TaskCreateIn) => sendTaskMessage({ action: "create", payload, schedule_id: payload.schedule_id }),
     onSuccess: (_, payload) => {
-      queryClient.invalidateQueries({ queryKey: ["tasks"] }),
       queryClient.invalidateQueries({ queryKey: TASKS_LIST_QUERY_KEY })
       queryClient.invalidateQueries({ queryKey: scheduleDetailQueryKey(payload.schedule_id) })
     },
@@ -36,7 +35,7 @@ export function useUpdateTask() {
     mutationFn: (payload: { task_id: number; payload: TaskUpdateIn }) =>
       sendTaskMessage({ action: "update", ...payload, schedule_id: payload.payload.schedule_id , prev_schedule_id: payload.payload.prev_schedule_id }),
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["tasks"] })
+      queryClient.invalidateQueries({ queryKey: TASKS_LIST_QUERY_KEY })
       queryClient.invalidateQueries({
         queryKey: taskDetailQueryKey(variables.task_id),
       })
