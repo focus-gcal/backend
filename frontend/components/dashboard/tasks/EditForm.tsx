@@ -2,13 +2,14 @@ import { Button, Collapse, DatePicker, Input, InputNumber, Select, Space, Switch
 import dayjs from "dayjs"
 import { useState } from "react"
 import type { TaskOut, TaskPriority, TaskStatus } from "./types/task"
-import { MOCK_SCHEDULES } from "../schedules/fixtures/mock"
 import { CHUNK_MINUTES } from "~/utils"
 
 interface TaskEditFormProps {
   task: TaskOut
+  schedules: Array<{ id: number; name: string }>
   onSave: (updated: TaskOut) => void
   onCancel: () => void
+  isSaving?: boolean
 }
 
 const statusOptions: Array<{ label: string; value: TaskStatus }> = [
@@ -36,10 +37,16 @@ const fromInputDateValue = (value: string) => {
   return `${value}T00:00:00.000Z`
 }
 
-export function TaskEditForm({ task, onSave, onCancel }: TaskEditFormProps) {
+export function TaskEditForm({
+  task,
+  schedules,
+  onSave,
+  onCancel,
+  isSaving = false,
+}: TaskEditFormProps) {
   const initialScheduleId =
     task.schedule_id ??
-    MOCK_SCHEDULES.find((schedule) => schedule.name === task.schedule_name)?.id ??
+    schedules.find((schedule) => schedule.name === task.schedule_name)?.id ??
     null
 
   const [title, setTitle] = useState(task.title)
@@ -54,6 +61,7 @@ export function TaskEditForm({ task, onSave, onCancel }: TaskEditFormProps) {
   const [maxDurationChunk, setMaxDurationChunk] = useState<number | null>(task.max_duration_chunk)
   const [selectedScheduleId, setSelectedScheduleId] = useState<number | null>(initialScheduleId)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [prevScheduleId, setPrevScheduleId] = useState<number | null>(task.schedule_id)
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -70,6 +78,10 @@ export function TaskEditForm({ task, onSave, onCancel }: TaskEditFormProps) {
       setErrorMessage("Duration must be greater than 0.")
       return
     }
+    if(startDate != null && startDate > deadline) {
+      setErrorMessage("Start date must be before deadline.")
+      return
+    }
     if (minChunk != null && minChunk <= 0) {
       setErrorMessage("Min chunk must be greater than 0.")
       return
@@ -84,7 +96,7 @@ export function TaskEditForm({ task, onSave, onCancel }: TaskEditFormProps) {
     }
 
     const selectedSchedule =
-      MOCK_SCHEDULES.find((schedule) => schedule.id === selectedScheduleId) ?? null
+      schedules.find((schedule) => schedule.id === selectedScheduleId) ?? null
 
     setErrorMessage(null)
     onSave({
@@ -101,6 +113,7 @@ export function TaskEditForm({ task, onSave, onCancel }: TaskEditFormProps) {
       max_duration_chunk: maxDurationChunk,
       schedule_id: selectedSchedule ? selectedSchedule.id : null,
       schedule_name: selectedSchedule ? selectedSchedule.name : null,
+      prev_schedule_id: prevScheduleId,
     })
   }
 
@@ -192,12 +205,17 @@ export function TaskEditForm({ task, onSave, onCancel }: TaskEditFormProps) {
                 placeholder="Select a schedule"
                 value={selectedScheduleId ?? undefined}
                 onChange={(value) => setSelectedScheduleId(value ?? null)}
-                options={MOCK_SCHEDULES.map((schedule) => ({
+                options={schedules.map((schedule) => ({
                   label: schedule.name,
                   value: schedule.id,
                 }))}
                 style={{ width: 150, minWidth: 150 }}
                 size="middle"
+                notFoundContent={
+                  <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                    You haven't created any schedules yet.
+                  </Typography.Text>
+                }
               />
             </div>
           </Space>
@@ -267,10 +285,15 @@ export function TaskEditForm({ task, onSave, onCancel }: TaskEditFormProps) {
           ) : null}
 
           <Space size={8}>
-            <Button type="primary" htmlType="submit" shape="round">
+            <Button
+              type="primary"
+              htmlType="submit"
+              shape="round"
+              loading={isSaving}
+              disabled={isSaving}>
               Save
             </Button>
-            <Button onClick={onCancel} shape="round">
+            <Button onClick={onCancel} shape="round" disabled={isSaving}>
               Cancel
             </Button>
           </Space>

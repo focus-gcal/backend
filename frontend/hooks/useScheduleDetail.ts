@@ -3,6 +3,8 @@ import { sendToBackground } from "@plasmohq/messaging"
 
 import type { ScheduleListOut } from "~components/dashboard/schedules/types/schedule"
 
+const SCHEDULES_MESSAGE_NAME = "schedules" as Parameters<typeof sendToBackground>[0]["name"]
+
 export function scheduleDetailQueryKey(scheduleId: number | null) {
   return ["schedules", "detail", scheduleId] as const
 }
@@ -31,7 +33,7 @@ export function useScheduleDetail(scheduleId: number | null) {
     queryFn: async () => {
       if (scheduleId == null) return null
       const res = await sendToBackground({
-        name: "schedules",
+        name: SCHEDULES_MESSAGE_NAME,
         body: { action: "get", schedule_id: scheduleId },
       })
       if (!res.ok) throw new Error(res.error)

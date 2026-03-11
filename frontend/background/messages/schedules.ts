@@ -33,6 +33,10 @@ let listCache:
     }
     |null = null
 
+export function invalidateScheduleDetailCache(schedule_id: number){
+    detailCache.delete(schedule_id)
+}
+
 async function fetchScheduleDetail(token:string, schedule_id:number): Promise<unknown>{
     const response = await fetch(`${config.backend.baseUrl}/schedules/${schedule_id}`, {
         method: "GET",

@@ -25,8 +25,8 @@ import {
 interface DetailViewProps {
   detail: TaskOut
   onBack: () => void
-  onUpdate: (e: React.MouseEvent) => void
-  onDelete: (e: React.MouseEvent) => void
+  onUpdate: () => void
+  onDelete: () => void
 }
 
 
@@ -134,7 +134,10 @@ export function DetailView({ detail, onBack, onUpdate, onDelete }: DetailViewPro
                   type="text"
                   aria-label="Edit task"
                   icon={<EditOutlined />}
-                  onClick={onUpdate}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onUpdate()
+                  }}
                   style={{ color: "rgba(255,255,255,0.85)" }}
                 />
                 <Popconfirm

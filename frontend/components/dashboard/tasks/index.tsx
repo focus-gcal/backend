@@ -1,35 +1,60 @@
 import { useState } from "react"
 import { toast } from "react-hot-toast"
-import { MOCK_TASKS } from "./fixtures/mock"
-import type { TaskOut } from "./types/task"
+import type { TaskCreateIn, TaskOut, TaskUpdateIn } from "./types/task"
 import { EmptyState } from "../common/EmptyState"
 import { CreateButton } from "../common/CreateButton"
 import { TaskListItem } from "./TaskListItem"
 import { DetailView } from "./DetailView"
 import { TaskEditForm } from "./EditForm"
+import { useTasksList } from "~/hooks/useTasksList"
+import { useTaskDetail } from "~/hooks/useTaskDetail"
+import { useCreateTask, useDeleteTask, useUpdateTask } from "~/hooks/useTaskMutations"
+import { useSchedulesList } from "~/hooks/useSchedulesList"
+import Loading from "~components/Loading"
+
+const NEW_TASK_ID = 0
 
 export default function TasksView() {
-  const notifySuccess = (message: string) => {
-    toast.success(message)
-  }
-  const [tasks, setTasks] = useState<TaskOut[]>(MOCK_TASKS)
+  const notifySuccess = (message: string) => toast.success(message)
+  const notifyError = (message: string) => toast.error(message)
+
+  const { data, isLoading, error } = useTasksList()
+  const tasks: TaskOut[] = (data ?? []) as TaskOut[]
+  const { data: schedulesData } = useSchedulesList()
+
   const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null)
   const [editingTask, setEditingTask] = useState<TaskOut | null>(null)
   const [isCreating, setIsCreating] = useState(false)
 
-  const selectedTask = tasks.find((t) => t.id === selectedTaskId)
-  const detail: TaskOut | null =
-    selectedTask ? selectedTask : null
+  const detailQuery = useTaskDetail(selectedTaskId)
+  const detail: TaskOut | null = detailQuery.data ?? null
+
+  const createTask = useCreateTask()
+  const updateTask = useUpdateTask()
+  const deleteTask = useDeleteTask()
+
+  const schedules = ((schedulesData ?? []) as Array<{ id: number; name: string }>).map((schedule) => ({
+    id: schedule.id,
+    name: schedule.name,
+  }))
+
+  const deleteTaskById = async (taskId: number, scheduleId: number | null) => {
+    try {
+      await deleteTask.mutateAsync({ task_id: taskId, schedule_id: scheduleId })
+      if (selectedTaskId === taskId) setSelectedTaskId(null)
+      if (editingTask?.id === taskId) {
+        setEditingTask(null)
+        setIsCreating(false)
+      }
+      notifySuccess("Task deleted")
+    } catch (e) {
+      notifyError(e instanceof Error ? e.message : "Failed to delete task")
+    }
+  }
 
   const handleDelete = (task: TaskOut, e: React.MouseEvent) => {
     e.stopPropagation()
-    setTasks((prev) => prev.filter((t) => t.id !== task.id))
-    if (selectedTaskId === task.id) setSelectedTaskId(null)
-    if (editingTask && editingTask.id === task.id) {
-      setEditingTask(null)
-      setIsCreating(false)
-    }
-    notifySuccess("Task deleted")
+    deleteTaskById(task.id, task.schedule_id)
   }
 
   const handleEdit = (task: TaskOut, e: React.MouseEvent) => {
@@ -38,12 +63,27 @@ export default function TasksView() {
     setEditingTask(task)
   }
 
+  const handleToggleStatus = async (task: TaskOut, e: React.MouseEvent) => {
+    e.stopPropagation()
+    const nextStatus = task.status === "completed" ? "todo" : "completed"
+    try {
+      await updateTask.mutateAsync({
+        task_id: task.id,
+        payload: { status: nextStatus },
+      })
+      notifySuccess(nextStatus === "completed" ? "Task completed" : "Task marked to do")
+      if (selectedTaskId === task.id) {
+        setSelectedTaskId(task.id)
+      }
+    } catch (err) {
+      notifyError(err instanceof Error ? err.message : "Failed to update task status")
+    }
+  }
+
   const handleCreate = () => {
-    const nextId =
-      tasks.length > 0 ? Math.max(...tasks.map((t) => t.id)) + 1 : 1
     const userId = tasks[0]?.user_id ?? 1
     const draft: TaskOut = {
-      id: nextId,
+      id: NEW_TASK_ID,
       user_id: userId,
       title: "",
       description: "",
@@ -57,15 +97,61 @@ export default function TasksView() {
       max_duration_chunk: null,
       schedule_id: null,
       schedule_name: null,
+      prev_schedule_id: null,
     }
     setIsCreating(true)
     setEditingTask(draft)
   }
 
+  const handleSave = async (updated: TaskOut) => {
+    const basePayload: TaskCreateIn = {
+      title: updated.title.trim(),
+      description: updated.description,
+      duration: updated.duration,
+      priority: updated.priority,
+      deadline: updated.deadline,
+      is_hard_deadline: updated.is_hard_deadline,
+      status: updated.status,
+      start_date: updated.start_date,
+      min_chunk: updated.min_chunk,
+      max_duration_chunk: updated.max_duration_chunk,
+      schedule_name: updated.schedule_name,
+      schedule_id: updated.schedule_id,
+      prev_schedule_id: updated.prev_schedule_id,
+    }
+
+    try {
+      if (updated.id === NEW_TASK_ID) {
+        const created = (await createTask.mutateAsync(basePayload)) as TaskOut
+        notifySuccess("Task created")
+        setSelectedTaskId(created.id)
+      } else {
+        const updatePayload: TaskUpdateIn = { ...basePayload }
+        await updateTask.mutateAsync({
+          task_id: updated.id,
+          payload: updatePayload,
+        })
+        notifySuccess("Task updated")
+        setSelectedTaskId(updated.id)
+      }
+      setEditingTask(null)
+      setIsCreating(false)
+    } catch (e) {
+      notifyError(e instanceof Error ? e.message : "Failed to save task")
+    }
+  }
 
   let content
 
-  if (tasks.length === 0 && !isCreating) {
+  if (isLoading) {
+    content = <Loading />
+  } else if (error) {
+    content = (
+      <div style={{ padding: 16, color: "red" }}>
+        Failed to load tasks: {error instanceof Error ? error.message : "Unknown error"}
+      </div>
+    )
+  } else if (tasks.length === 0 && !isCreating) {
     content = (
       <EmptyState
         onCreate={handleCreate}
@@ -78,35 +164,58 @@ export default function TasksView() {
     content = (
       <TaskEditForm
         task={editingTask}
-        onSave={(updated) => {
-          let exists = false
-          setTasks((prev) => {
-            exists = prev.some((t) => t.id === updated.id)
-            if (exists) {
-              return prev.map((t) => (t.id === updated.id ? updated : t))
-            }
-            return [...prev, updated]
-          })
-          notifySuccess(exists ? "Task updated" : "Task created")
-          setEditingTask(null)
-          setIsCreating(false)
-          setSelectedTaskId(updated.id)
-        }}
+        schedules={schedules}
+        onSave={handleSave}
         onCancel={() => {
           setEditingTask(null)
           setIsCreating(false)
         }}
+        isSaving={createTask.isPending || updateTask.isPending}
       />
     )
-  } else if (detail) {
-    content = (
-      <DetailView
-        detail={selectedTask}
-        onBack={() => setSelectedTaskId(null)}
-        onUpdate={(e) => handleEdit(selectedTask, e)}
-        onDelete={(e) => handleDelete(selectedTask, e)}
-      />
-    )
+  } else if (selectedTaskId != null) {
+    if (detailQuery.isLoading) {
+      content = <Loading />
+    } else if (detailQuery.error) {
+      content = (
+        <div style={{ padding: 16 }}>
+          <div style={{ color: "red", marginBottom: 8 }}>
+            {detailQuery.error instanceof Error ? detailQuery.error.message : "Failed to load task"}
+          </div>
+          <button
+            type="button"
+            onClick={() => setSelectedTaskId(null)}
+            style={{ cursor: "pointer" }}>
+            Back to list
+          </button>
+        </div>
+      )
+    } else if (detail) {
+      content = (
+        <DetailView
+          detail={detail}
+          onBack={() => setSelectedTaskId(null)}
+          onUpdate={() => {
+            setIsCreating(false)
+            setEditingTask(detail)
+          }}
+          onDelete={async () => {
+            await deleteTaskById(detail.id, detail.schedule_id)
+          }}
+        />
+      )
+    } else {
+      content = (
+        <div style={{ padding: 16 }}>
+          <button
+            type="button"
+            onClick={() => setSelectedTaskId(null)}
+            style={{ cursor: "pointer" }}>
+            Back to list
+          </button>
+        </div>
+      )
+    }
   } else {
     content = (
       <>
@@ -115,6 +224,7 @@ export default function TasksView() {
             key={task.id}
             task={task}
             onSelect={() => setSelectedTaskId(task.id)}
+            onToggleStatus={(e) => handleToggleStatus(task, e)}
             onEdit={(e) => handleEdit(task, e)}
             onDelete={(e) => handleDelete(task, e)}
           />
