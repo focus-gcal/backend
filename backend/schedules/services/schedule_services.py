@@ -1,5 +1,27 @@
+from collections import defaultdict
+
 from schedules.models import Schedule, ScheduleTemplate
 from schedules.selectors.schedule_selector import get_schedule_template_by_id_for_user
+
+
+def _validate_blocks_for_bulk(blocks) -> None:
+    """
+    Validate blocks: each must have end > start; no two blocks on the same day
+    may overlap. Raises ValueError if invalid. Used before bulk_create.
+    """
+    if not blocks:
+        return
+    for b in blocks:
+        if b.end_time <= b.start_time:
+            raise ValueError("End time must be after start time.")
+    by_day = defaultdict(list)
+    for b in blocks:
+        by_day[b.day_of_week].append((b.start_time, b.end_time))
+    for day, ranges in by_day.items():
+        ranges.sort(key=lambda r: r[0])
+        for i in range(1, len(ranges)):
+            if ranges[i][0] < ranges[i - 1][1]:
+                raise ValueError("Time blocks on the same day cannot overlap.")
 
 
 def get_schedule_template_detail(
@@ -26,18 +48,26 @@ def create_schedule_template(
     `.name` and `.blocks` (ScheduleBlockIn instances).
     """
     try:
+        blocks = data.blocks or []
+        if not blocks:
+            return None, (400, {"error": "At least one block is required."})
+        _validate_blocks_for_bulk(blocks)
         template = ScheduleTemplate.objects.create(user=user, name=data.name)
-        for block in data.blocks or []:
-            schedule = Schedule(
-                schedule_template=template,
-                user=user,
-                name=template.name,
-                day_of_week=block.day_of_week,
-                start_time=block.start_time,
-                end_time=block.end_time,
-            )
-            schedule.full_clean()
-            schedule.save()
+        Schedule.objects.bulk_create(
+            [
+                Schedule(
+                    schedule_template=template,
+                    user=user,
+                    name=template.name,
+                    day_of_week=b.day_of_week,
+                    start_time=b.start_time,
+                    end_time=b.end_time,
+                )
+                for b in blocks
+            ]
+        )
+    except ValueError as e:
+        return None, (400, {"error": str(e)})
     except Exception as e:
         return None, (400, {"error": str(e)})
 
@@ -67,22 +97,29 @@ def update_schedule_template(
         template.name = name
 
     # Replace blocks if provided (payload contains dicts; use `data.blocks` for typed items)
-    blocks = payload.get("blocks")
-    if blocks is not None:
-        # Clear existing slots
+    blocks_payload = payload.get("blocks")
+    if blocks_payload is not None:
+        new_blocks = data.blocks or []
+        if not new_blocks:
+            return None, (400, {"error": "At least one block is required."})
+        try:
+            _validate_blocks_for_bulk(new_blocks)
+        except ValueError as e:
+            return None, (400, {"error": str(e)})
         template.slots.all().delete()
-        # Recreate slots for each block
-        for b in data.blocks or []:
-            schedule = Schedule(
-                schedule_template=template,
-                user=user,
-                name=template.name,
-                day_of_week=b.day_of_week,
-                start_time=b.start_time,
-                end_time=b.end_time,
-            )
-            schedule.full_clean()
-            schedule.save()
+        Schedule.objects.bulk_create(
+            [
+                Schedule(
+                    schedule_template=template,
+                    user=user,
+                    name=template.name,
+                    day_of_week=b.day_of_week,
+                    start_time=b.start_time,
+                    end_time=b.end_time,
+                )
+                for b in new_blocks
+            ]
+        )
 
     try:
         template.full_clean()
